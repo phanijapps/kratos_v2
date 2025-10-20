@@ -1,0 +1,10 @@
+{
+    "dependencies": [
+        "./kratos"
+    ],
+    "graphs": {
+        "research": "./kratos/agent.py:graph",
+        "vault_research": "./kratos/agent2.py:graph"
+    },
+    "env": ".env"
+}

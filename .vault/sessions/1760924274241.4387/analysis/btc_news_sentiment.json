@@ -1,0 +1,36 @@
+{
+  "symbol": "BTC-USD",
+  "news_count": 10,
+  "latest_news": [
+    {
+      "title": "Bitcoin Just Broke Up with Nasdaq — And No One Saw It Coming",
+      "summary": "Bitcoin lagged the Nasdaq last week due to a leverage washout. Analysts point to speculative demand. US-China talks & CPI are now in focus.",
+      "pubDate": "2025-10-20T00:03:20Z",
+      "sentiment_score": 0.0
+    },
+    {
+      "title": "Coinbase Institutional Highlights Three Catalysts That Could Lift Crypto in Q4 2025",
+      "summary": "In a Q4 2025 outlook report, Coinbase Institutional says the cycle still skews positive — with liquidity, stablecoins and policy progress lifting the market.",
+      "pubDate": "2025-10-19T15:41:41Z",
+      "sentiment_score": 0.0
+    },
+    {
+      "title": "Stablecoins' $1 Peg Is a 'Misconception,' Says NYDIG After $500 Billion Market Meltdown",
+      "summary": "The recent $500 billion crypto market sell-off revealed the instability of stablecoins, with prices fluctuating even for stablecoins.",
+      "pubDate": "2025-10-19T14:00:00Z",
+      "sentiment_score": 0.0
+    },
+    {
+      "title": "Bitcoin Briefly Slips Below $105,000. Is It Time to Buy?",
+      "summary": "Think about Bitcoin's long-term potential before you buy the dip.",
+      "pubDate": "2025-10-19T13:33:00Z",
+      "sentiment_score": 0.0
+    }
+  ],
+  "key_themes": [
+    "Market correction and leverage washout",
+    "Policy progress as potential catalyst",
+    "Stablecoin stability concerns",
+    "Bitcoin price volatility around $105,000 level"
+  ]
+}

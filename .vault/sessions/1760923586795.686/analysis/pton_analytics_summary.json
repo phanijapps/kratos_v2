@@ -1,0 +1,36 @@
+{
+  "symbol": "PTON",
+  "analysis_date": "2025-10-19",
+  "fixed_window_analysis": {
+    "window_days": 30,
+    "mean_price": 7.99,
+    "std_deviation": 0.51,
+    "price_range": {
+      "min": 6.96,
+      "max": 9.00
+    },
+    "return_percentage": -7.41
+  },
+  "sliding_window_analysis": {
+    "window_days": 30,
+    "step_days": 5,
+    "performance_summary": {
+      "best_period_return": 27.86,
+      "worst_period_return": -15.93,
+      "average_return": 4.52,
+      "volatility_range": "0.17-0.31"
+    },
+    "recent_trends": {
+      "last_30_days_return": -7.41,
+      "volatility": 0.21,
+      "performance_characteristics": "Mixed with recent decline"
+    }
+  },
+  "key_insights": [
+    "Recent 30-day performance: -7.41% decline",
+    "Price volatility: Moderate (0.21 standard deviation)",
+    "Range-bound trading between $6.96-$9.00",
+    "Strong performance in July-August period (+27.86%)",
+    "Recent weakness since late September"
+  ]
+}

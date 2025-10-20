@@ -1,0 +1,51 @@
+AMD STOCK - SIMPLE MOVING AVERAGE (SMA) ANALYSIS
+================================================
+
+CURRENT SMA VALUES (as of latest data):
+- SMA 20: $193.16
+
+Note: The SMA function appears to only provide SMA_20 data regardless of parameters specified.
+
+PRICE VS MOVING AVERAGE ANALYSIS:
+=================================
+
+Based on the SMA_20 data trend:
+
+RECENT PRICE ACTION:
+- Current SMA 20: $193.16
+- The SMA has been in a strong uptrend since May 2025
+- From the low of $91.29 in early May 2025 to current $193.16
+- This represents a significant 111% increase in the 20-day moving average
+
+TREND ANALYSIS:
+- Strong bullish momentum evident since May 2025
+- Consistent upward trajectory with minimal pullbacks
+- Recent acceleration in the uptrend from October 2025
+
+TECHNICAL SIGNALS:
+- Price is likely trading above the SMA 20 (bullish)
+- The steep upward slope indicates strong buying pressure
+- No signs of trend reversal in the moving average data
+
+SUPPORT/RESISTANCE LEVELS:
+- Immediate support near recent SMA levels around $175-180
+- Next major support around $160-165 level
+- Resistance levels would be projected based on continuation of trend
+
+VOLATILITY OBSERVATIONS:
+- The SMA shows relatively smooth upward movement
+- This suggests controlled buying rather than speculative spikes
+- Consistent accumulation pattern evident
+
+RECOMMENDATIONS:
+- Current trend is strongly bullish based on SMA analysis
+- Consider the stock to be in an uptrend
+- Monitor for any potential divergence or flattening of the SMA
+- Watch for volume confirmation of the trend
+
+RISK CONSIDERATIONS:
+- The rapid ascent may lead to short-term consolidation
+- Any break below the SMA 20 could signal trend weakness
+- Consider broader market conditions and fundamental factors
+
+Note: For complete analysis, SMA 50 and SMA 200 data would provide additional context for trend confirmation and support/resistance levels.

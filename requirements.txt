@@ -1,0 +1,16 @@
+langgraph==1.0.0
+langgraph-api
+langgraph-cli[inmem]
+langchain==1.0.0
+langchain-openai==1.0.0
+langchain-ollama
+deepagents==0.1.1
+langmem
+langchain-mcp-adapters
+yfinance
+pandas-ta
+pandas
+numpy
+matplotlib
+ddgs
+dotenv

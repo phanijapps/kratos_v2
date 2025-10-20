@@ -1,0 +1,58 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python packaging
+/build/
+/dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+ENV/
+Pipfile.lock
+poetry.lock
+
+# Pip tools caches
+.pip/
+.cache/
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Unit test / coverage reports
+.pytest_cache/
+.coverage*
+coverage.xml
+htmlcov/
+
+# IDE and editor config
+.idea/
+.vscode/
+*.swp
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# LangChain specific
+.langchain/
+langchain.db
+.langchain.yaml
+.langchain_config.yaml
+
+# Application secrets
+.env
+.env.*
+.envrc
+*.secrets
