@@ -13,7 +13,7 @@ Features:
 FIXED: Pydantic JsonSchema compatibility using InjectedToolArg
 """
 
-from typing import Any, Callable, Optional, List, Dict, Annotated
+from typing import Any, Callable, Optional, List, Dict, Annotated, Literal
 from operator import add
 from collections.abc import Awaitable
 from langchain_core.tools import tool, InjectedToolArg  # ADDED InjectedToolArg
@@ -379,6 +379,74 @@ If a file isn't found:
             except Exception as e:
                 logger.error(f"Error reading file: {e}")
                 return format_error("Read Error", str(e))
+        
+        @tool
+        def pwd(
+            is_shared: bool = False,
+            ensure_exists: bool = True,
+            runtime: Annotated[Optional[Any], InjectedToolArg()] = None  # FIXED
+        ) -> str:
+            """
+            Return the backing directory for the current session or namespace.
+            
+            Args:
+                is_shared: Return the shared session directory.
+                ensure_exists: Create the directory if it is missing.
+            
+            Returns:
+                Absolute path to the workspace directory.
+            """
+            try:
+                if runtime and hasattr(runtime, 'state'):
+                    namespace, session_id = get_state(runtime.state)
+                else:
+                    namespace, session_id = "default", None
+                
+                path = vault.get_pwd(
+                    namespace=namespace,
+                    session_id=session_id,
+                    is_shared=is_shared,
+                    ensure_exists=ensure_exists
+                )
+                
+                if format_out:
+                    if is_shared:
+                        storage = "shared session"
+                    elif session_id:
+                        storage = f"session '{session_id}'"
+                    else:
+                        storage = f"namespace '{namespace}'"
+                    return f"📂 Workspace directory: {path}\n🗂️  Storage: {storage}"
+                return path
+            except Exception as e:
+                logger.error(f"Error resolving workspace directory: {e}")
+                return format_error("PWD Error", str(e))
+            
+        @tool
+        def get_vault_location(
+            asset_type: Literal["code","tool_results","reports","charts"],
+            runtime: Annotated[Optional[Any], InjectedToolArg()] = None 
+        ) -> str:
+            """
+            Gets absolute directory path for different types of assets. reports, code, charts, tool_results etc.
+
+            Args:
+                asset_type: Type of asset (code for python files, tool_results for saved large tool results, charts, for generated charts, reports for generated reports)
+            
+            Returns:
+                Message with Absolute File Path
+            """
+            try:
+                if runtime and hasattr(runtime, 'state'):
+                    namespace, session_id = get_state(runtime.state)
+                else:
+                    namespace, session_id = "default", None
+                
+                location = vault.get_storage_dir_path(asset_type=asset_type, namespace=namespace, session_id=session_id)
+                print(f"Location is {location}")
+                return str(location)
+            except Exception as ex:
+                return f"Error fetching location for get vault session for asset {asset_type}"
         
         @tool
         def write_file(
@@ -758,7 +826,7 @@ If a file isn't found:
             except Exception as e:
                 return format_error("Grep Search Error", str(e))
         
-        tools = [ls, read_file, write_file, edit_file, get_session_summary, glob_search, grep_search]
+        tools = [ls, read_file, pwd, write_file, edit_file, get_session_summary, glob_search, grep_search, get_vault_location]
         return tools
     
     def before_agent(self, state: AgentState, runtime: Any) -> Optional[Dict[str, Any]]:

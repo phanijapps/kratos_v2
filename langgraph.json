@@ -3,8 +3,7 @@
         "./kratos"
     ],
     "graphs": {
-        "research": "./kratos/agent.py:graph",
-        "vault_research": "./kratos/agent2.py:graph"
+        "agent_new":  "./kratos/kai_raja.py:kai"
     },
     "env": ".env"
 }

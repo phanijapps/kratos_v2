@@ -355,8 +355,11 @@ class FileVault:
     # UNIFIED API (Works with both backends)
     # ============================================================================
     
-    def _validate_path(self, path: str) -> str:
+    def _validate_path(self, path: str | Path) -> str:
         """Validate and normalize file path"""
+        if isinstance(path, Path):
+            path = str(path)
+
         if ".." in path or path.startswith("~"):
             raise ValueError(f"Invalid path (traversal attempt): {path}")
         
@@ -383,6 +386,60 @@ class FileVault:
             storage_path = self.persistent_dir / namespace / file_path
         
         return storage_path
+    
+    def get_storage_dir_path(
+            self,
+            asset_type: str,
+            namespace: str = "default",
+            session_id: Optional[str] = None
+    ) -> Path:
+        if session_id:
+            storage_path = self.sessions_dir / session_id / asset_type
+        else:
+            storage_path = self.persistent_dir / namespace / asset_type
+        
+        dir_location = self._validate_path(storage_path)
+
+        print(f"Directory Location {dir_location}")
+
+        # Create parent directories
+        storage_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        return storage_path
+        
+    
+    def get_pwd(
+        self,
+        namespace: str = "default",
+        session_id: Optional[str] = None,
+        is_shared: bool = False,
+        ensure_exists: bool = True
+    ) -> str:
+        """
+        Return the working directory for the provided session/namespace.
+        
+        Args:
+            namespace: Namespace directory for persistent storage (ignored if session_id provided).
+            session_id: Session identifier; when provided, session workspace is returned.
+            is_shared: Treat request as shared session storage.
+            ensure_exists: Create the directory if it does not yet exist.
+        
+        Returns:
+            Absolute path to the backing directory.
+        """
+        if is_shared:
+            session_id = "shared"
+        
+        if session_id:
+            base_dir = self.sessions_dir / session_id
+        else:
+            namespace = namespace or "default"
+            base_dir = self.persistent_dir / namespace
+        
+        if ensure_exists:
+            base_dir.mkdir(parents=True, exist_ok=True)
+        
+        return str(base_dir.resolve())
     
     def _generate_file_id(self, file_path: str, namespace: str, session_id: Optional[str]) -> str:
         """Generate unique file ID"""

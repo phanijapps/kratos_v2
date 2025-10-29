@@ -4,6 +4,7 @@ langgraph-cli[inmem]
 langchain==1.0.0
 langchain-openai==1.0.0
 langchain-ollama
+langchain-experimental
 deepagents==0.1.1
 langmem
 langchain-mcp-adapters
@@ -14,3 +15,4 @@ numpy
 matplotlib
 ddgs
 dotenv
+pytest
