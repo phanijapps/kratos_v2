@@ -1,0 +1,276 @@
+"""
+Public export surface for the yfinance-backed financial tools.
+
+The module assembles handlers from category-specific files and exposes them as
+LangChain tools whose names mirror the original Alpha Vantage endpoints.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Callable, Dict, List, Annotated, Optional
+from pydantic import BaseModel, Field
+from langchain.tools import ToolRuntime
+from langchain_core.tools import StructuredTool, InjectedToolArg
+
+from kratos.subagents.agents import ALPHA_VANTAGE_SUBAGENTS
+from kratos.tools.repl_tools import SESSION_CODE_EXECUTOR
+from kratos.tools.search_tools import search_news, search_web
+
+from kratos.tools.fin_tools.alpha_intelligence import HANDLERS as ALPHA_INTELLIGENCE_HANDLERS
+from kratos.tools.fin_tools.commodities import HANDLERS as COMMODITY_HANDLERS
+from kratos.tools.fin_tools.core import HANDLERS as CORE_HANDLERS
+from kratos.tools.fin_tools.crypto import HANDLERS as CRYPTO_HANDLERS
+from kratos.tools.fin_tools.economics import HANDLERS as ECONOMIC_HANDLERS
+from kratos.tools.fin_tools.forex import HANDLERS as FOREX_HANDLERS
+from kratos.tools.fin_tools.fundamentals import HANDLERS as FUNDAMENTAL_HANDLERS
+from kratos.tools.fin_tools.options import HANDLERS as OPTIONS_HANDLERS
+from kratos.tools.fin_tools.technical import HANDLERS as TECHNICAL_HANDLERS
+from kratos.tools.fin_tools.base import ToolExecutionError
+
+
+import json
+import os
+import uuid
+
+ADDITIONAL_TOOLS: List[Any] = [
+    SESSION_CODE_EXECUTOR,
+    search_news,
+    search_web,
+]
+_ADDITIONAL_TOOL_MAP = {tool.name: tool for tool in ADDITIONAL_TOOLS}
+
+HANDLER_TABLE: Dict[str, Callable[..., Dict[str, Any]]] = {}
+for handler_set in (
+    CORE_HANDLERS,
+    OPTIONS_HANDLERS,
+    ALPHA_INTELLIGENCE_HANDLERS,
+    FUNDAMENTAL_HANDLERS,
+    FOREX_HANDLERS,
+    CRYPTO_HANDLERS,
+    COMMODITY_HANDLERS,
+    ECONOMIC_HANDLERS,
+    TECHNICAL_HANDLERS,
+):
+    HANDLER_TABLE.update(handler_set)
+
+
+def _build_tool_map() -> Dict[str, str]:
+    mapping: Dict[str, str] = {}
+    for category in ALPHA_VANTAGE_SUBAGENTS:
+        for tool_meta in category["tools"]:
+            mapping[tool_meta["tool"]] = tool_meta["description"]
+    return mapping
+
+
+TOOL_DESCRIPTIONS = _build_tool_map()
+
+# Ensure we have handlers for every declared tool
+missing = sorted(
+    set(TOOL_DESCRIPTIONS) - set(HANDLER_TABLE) - set(_ADDITIONAL_TOOL_MAP)
+)
+if missing:
+    raise RuntimeError(f"No handlers registered for tools: {missing}")
+
+
+def _error_payload(tool_name: str, message: str) -> Dict[str, Any]:
+    return {"tool": tool_name, "success": False, "error": message}
+
+def _is_payload_large(result: Dict[str,Any]) -> bool:
+    if isinstance(result, dict):
+        result.setdefault("tool", tool_name)
+        result.setdefault("success", True)
+        
+        # Check for large payload
+        threshold = 10000  # tokens
+        json_str = json.dumps(result)
+        estimated_tokens = len(json_str) // 4  # Rough estimate; refine as needed
+        
+        if estimated_tokens > threshold:
+            return True
+            # Optionally, clear heavy fields here if you want to return a slim version
+            # e.g., if "data" in result and isinstance(result["data"], (list, dict)):
+            #     result["data"] = None  # or {"offloaded": True}
+        else:
+            return False
+
+def _save_to_file(tool_name:str, content: str, session_id: str) -> Dict[str, Any]:
+    # Define the base directory
+    print(f"Starting to offload {tool_name} - session {session_id}")
+    base_dir = os.path.join(".vault", "sessions", session_id, "tool_results")
+    print(f"Base Dir {base_dir}")
+    os.makedirs(base_dir, exist_ok=True)  # create directories if they don't exist
+
+    # Generate a random short GUID
+    rand_guid = str(uuid.uuid4())[:8]
+
+
+    # Construct the file path
+    filename = f"{tool_name}_{rand_guid}.json"
+    print(f"FileName {filename}")
+    file_path = os.path.join(base_dir, filename)
+    print(f"File Path {file_path}")
+
+    # Save the content to the file
+    with open(file_path, "w", encoding="utf-8") as f:
+        print("Writing to file")
+        f.write(content)
+
+    # Return metadata
+    return {
+        "result": f"Saved to /tool_results/{filename}",
+        "instructions": "Use the file and filesystem tools to parse and figure it out (read_file, glob, grep, ls are your friends)."
+    }
+
+def _get_payload(tool_name: str, result: Dict[str, Any], runtime: ToolRuntime) -> Dict[str, Any]:
+
+    #print(runtime)
+    if not isinstance(result, dict):
+        return {"tool": tool_name, "success": False, "error": "Result is not a dictionary"}
+
+    result.setdefault("tool", tool_name)
+    result.setdefault("success", True)
+
+    # Check for large payload
+    threshold = 5000  # tokens
+    json_str = json.dumps(result)
+    estimated_tokens = len(json_str) // 4  # Rough estimate
+
+    print(f"Length {len(json_str)} Estimated Tokens {estimated_tokens}")
+
+    # Only save if payload is large AND session_id is available
+    session_id = None
+    try:
+        session_id = runtime.state["session_id"]
+    except Exception:
+        session_id = None
+
+    print(f"Session ID = {session_id}")
+
+    if estimated_tokens > threshold:
+        print(f"Need to offload to filesystem")
+        if session_id:
+            return _save_to_file(tool_name=tool_name, content=json_str, session_id=session_id)
+        else:
+            # Gracefully skip saving if no session_id is available
+            print("Warning skipping")
+            result["warning"] = "Large payload not saved (session_id missing)"
+            return result
+    else:
+        return result
+        
+def _execute(tool_name: str, **kwargs: Any) -> Dict[str, Any]:
+    handler = HANDLER_TABLE.get(tool_name)
+    if handler is None:
+        return _error_payload(tool_name, f"No handler registered for tool {tool_name}.")
+    try:
+        #print(kwargs["runtime"])
+        result = handler(**kwargs)
+        result = _get_payload(tool_name=tool_name,result=result,runtime = kwargs["runtime"])
+            
+    except ToolExecutionError as exc:
+        return _error_payload(tool_name, str(exc))
+    except Exception as exc:  # pragma: no cover - defensive
+        return _error_payload(tool_name, f"{tool_name} failed: {exc}")
+
+    if isinstance(result, dict):
+        result.setdefault("tool", tool_name)
+        result.setdefault("success", True)
+        return result
+
+    return {"tool": tool_name, "success": True, "data": result}
+
+
+def _get_tool_input_schema(tool_name: str) -> BaseModel:
+    """Create appropriate input schema for each tool based on its expected parameters."""
+
+    class BaseInput(BaseModel):
+        runtime: Annotated[Optional[Any], InjectedToolArg()]
+    
+    # Define common schemas
+    class SymbolInput(BaseInput):
+        symbol: str = Field(description="Stock ticker symbol (e.g., AAPL, PTON, UBER)")
+    
+    class SymbolWithPeriodInput(BaseInput):
+        symbol: str = Field(description="Stock ticker symbol (e.g., AAPL, PTON, UBER)")
+        period: str = Field(default="1y", description="Time period (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)")
+        interval: str = Field(default="1d", description="Data interval (1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo)")
+    
+    class ForexInput(BaseInput):
+        from_symbol: str = Field(description="From currency symbol (e.g., USD)")
+        to_symbol: str = Field(description="To currency symbol (e.g., EUR)")
+    
+    class CryptoInput(BaseInput):
+        symbol: str = Field(description="Cryptocurrency symbol (e.g., BTC)")
+        market: str = Field(default="USD", description="Market currency (e.g., USD)")
+    
+    class KeywordsInput(BaseInput):
+        keywords: str = Field(description="Search keywords")
+    
+    class BulkQuotesInput(BaseInput):
+        symbols: List[str] = Field(description="List of stock symbols")
+    
+    class OptionsInput(BaseInput):
+        symbol: str = Field(description="Stock ticker symbol for options (e.g., AAPL, PTON, UBER)")
+        expiration: str = Field(default=None, description="Option expiration date (YYYY-MM-DD format)")
+    
+    class HistoricalOptionsInput(BaseInput):
+        contract_symbol: str = Field(description="Option contract symbol (e.g., AAPL240119C00150000)")
+        start: str = Field(default=None, description="Start date (YYYY-MM-DD)")
+        end: str = Field(default=None, description="End date (YYYY-MM-DD)")
+        interval: str = Field(default="1d", description="Data interval")
+    
+    class EmptyInput(BaseInput):
+        pass
+    
+    # Map tools to their input schemas
+    if tool_name in ["GLOBAL_QUOTE", "COMPANY_OVERVIEW", "INCOME_STATEMENT", "BALANCE_SHEET", 
+                     "CASH_FLOW", "EARNINGS", "NEWS_SENTIMENT", "INSIDER_TRANSACTIONS", 
+                     "ANALYTICS_FIXED_WINDOW", "ANALYTICS_SLIDING_WINDOW"]:
+        return SymbolInput
+    elif tool_name.startswith("TIME_SERIES_") or tool_name in ["SMA", "EMA", "RSI", "MACD", "BBANDS", "STOCH", "STOCHF", "STOCHRSI", "WILLR", "ADX", "ADXR", "APO", "PPO", "MOM", "BOP", "CCI", "CMO", "ROC", "ROCR", "AROON", "AROONOSC", "MFI", "TRIX", "ULTOSC", "DX", "MINUS_DI", "PLUS_DI", "MINUS_DM", "PLUS_DM", "MIDPOINT", "MIDPRICE", "SAR", "TRANGE", "ATR", "NATR", "AD", "ADOSC", "OBV", "WMA", "DEMA", "TEMA", "TRIMA", "KAMA", "MAMA", "VWAP", "T3", "MACDEXT"] or tool_name.startswith("HT_"):
+        return SymbolWithPeriodInput
+    elif tool_name.startswith("FX_"):
+        return ForexInput
+    elif tool_name.startswith("DIGITAL_CURRENCY_") or tool_name == "CURRENCY_EXCHANGE_RATE":
+        return CryptoInput
+    elif tool_name == "SYMBOL_SEARCH":
+        return KeywordsInput
+    elif tool_name == "REALTIME_BULK_QUOTES":
+        return BulkQuotesInput
+    elif tool_name == "REALTIME_OPTIONS":
+        return OptionsInput
+    elif tool_name == "HISTORICAL_OPTIONS":
+        return HistoricalOptionsInput
+    elif tool_name == "TOP_GAINERS_LOSERS":
+        return EmptyInput
+    else:
+        return EmptyInput
+
+
+def _build_tool(tool_name: str, description: str):
+    """Build a StructuredTool with proper input schema."""
+    input_schema = _get_tool_input_schema(tool_name)
+    
+    def _dynamic_tool(**kwargs: Any) -> Dict[str, Any]:
+        """Dynamic tool wrapper."""
+        return _execute(tool_name, **kwargs)
+    
+    return StructuredTool.from_function(
+        func=_dynamic_tool,
+        name=tool_name,
+        description=description,
+        args_schema=input_schema
+    )
+
+
+TOOLS: List[Any] = []
+globals_dict = globals()
+for tool_name, description in TOOL_DESCRIPTIONS.items():
+    tool_obj = _ADDITIONAL_TOOL_MAP.get(tool_name)
+    if tool_obj is None:
+        tool_obj = _build_tool(tool_name, description)
+    globals_dict[tool_name] = tool_obj
+    TOOLS.append(tool_obj)
+
+
+__all__ = [tool.name for tool in TOOLS] + ["TOOLS", "ToolExecutionError", "ADDITIONAL_TOOLS"]
