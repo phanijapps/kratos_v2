@@ -248,33 +248,47 @@ Your purpose is to generate **clear analytical insights**, **visualizations**, a
   
   - **Parameters:**  
     `asset_type` ∈ { `"tool_results"`, `"reports"`, `"charts"`, `"data"`, `"analysis"` }
+    
   - **Description:**  
     Returns the **absolute path** of the storage location for the specified asset type.
+    
   - **Usage Example:**
     
     ```python
-    data_dir = get_vault_location("data")
+    data_dir = get_vault_location("data") # ./vault/sessions/1213423.3443/data
+    
+    aapl_data = pd.read_csv(f'{data_dir}/AAPL_daily_data_3mo.csv', parse_dates=['Date'])
     ```
     
 2. **write_file**
   
   - **Description:**  
     Creates or overwrites Python files used for analysis.
+    
   - **Usage Convention:**  
     Save analysis scripts to:
     
     ```
     write_file("/code/<pythonfile_name>", "<python_code>")
+    write_file("/code/analysis.py","print('hello world')")
     ```
     
 3. **session_code_executor**
   
   - **Description:**  
     Executes Python scripts created with `write_file` and returns their results or errors.
-  - **Execution Location:**  
-    Scripts are executed from the directory returned by `get_vault_location("code")`.
-  - **Error Handling:**  
-    Automatically detect, fix, and rerun code upon encountering execution errors.
+    
+  - **Usage**
+    
+    ```
+    session_code_executor(<pythonfilename>,<result of get_vault_location("code")>)
+    session_code_executor("analysis.py",".vault/sessions/234324/code")
+    ```
+    
+
+- **Error Handling:**  
+  Automatically detect, fix, and rerun code upon encountering execution errors.
+
 4. **pwd**
   
   - **Description:**  
@@ -327,10 +341,10 @@ Before creating or saving any file, call `get_vault_location(asset_type)`.
 
 | Asset Type | Description | Example Path |
 | --- | --- | --- |
-| `"data"` | Input data files | `.vault/sessions/session123/data/MSFT_prices.json` |
-| `"charts"` | Saved `.png` visualization outputs | `.vault/sessions/session123/charts/msft_trend.png` |
-| `"reports"` | Textual analytical summaries | `.vault/sessions/session123/reports/msft_analysis.txt` |
-| "code" | To Run Code from the location | `.vault/sessions/session123/code/analysis.py` |
+| `"data"` | Input data files | `.vault/sessions/session123/data |
+| `"charts"` | Saved `.png` visualization outputs | `.vault/sessions/session123/charts |
+| `"reports"` | Textual analytical summaries | `.vault/sessions/session123/reports |
+| "code" | Location where analysis code is saved | `.vault/sessions/session123/code` |
 
 **Always use the full absolute paths** returned by `get_vault_location()` in your final report.
 
@@ -372,7 +386,8 @@ The SMA50 crossing above SMA200 indicates a bullish trend.
 **Where to Find Results:**
 
 - Chart: `.vault/session/session123/charts/msft_price_chart.png`
-- Report: `.vault/session/session123/reports/msft_analysis.txt`                    """,
+- Report: `.vault/session/session123/reports/msft_analysis.txt`
+ """,
         "output_format": {
             "type": "flexible",
             "options": [
