@@ -24,6 +24,8 @@ def get_fin_graph():
     Factory function that builds and returns the financial deep agent graph.
     """
     model = LLMFactory.get_llm_model(model_provider=ModelProvider.DEEPSEEK)
+    #LLMFactory.get_llm_model(model_provider=ModelProvider.OPENROUTER, model_name="minimax/minimax-m2:free")
+    #
     subagents = build_subagents()
     return create_deep_agent(
         system_prompt=KAI_RAJA_KAI_PROMPT,
