@@ -135,8 +135,6 @@ def _get_payload(tool_name: str, result: Dict[str, Any], runtime: ToolRuntime) -
     json_str = json.dumps(result)
     estimated_tokens = len(json_str) // 4  # Rough estimate
 
-    print(f"Length {len(json_str)} Estimated Tokens {estimated_tokens}")
-
     # Only save if payload is large AND session_id is available
     session_id = None
     try:
@@ -144,15 +142,12 @@ def _get_payload(tool_name: str, result: Dict[str, Any], runtime: ToolRuntime) -
     except Exception:
         session_id = None
 
-    print(f"Session ID = {session_id}")
 
     if estimated_tokens > threshold:
-        print(f"Need to offload to filesystem")
         if session_id:
             return _save_to_file(tool_name=tool_name, content=json_str, session_id=session_id)
         else:
             # Gracefully skip saving if no session_id is available
-            print("Warning skipping")
             result["warning"] = "Large payload not saved (session_id missing)"
             return result
     else:

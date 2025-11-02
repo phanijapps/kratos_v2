@@ -424,7 +424,7 @@ If a file isn't found:
             
         @tool
         def get_vault_location(
-            asset_type: Literal["code","tool_results","reports","charts"],
+            asset_type: Literal["code","tool_results","reports","charts","data","analysis"],
             runtime: Annotated[Optional[Any], InjectedToolArg()] = None 
         ) -> str:
             """

@@ -1,0 +1,9 @@
+{
+    "dependencies": [
+        "./kratos"
+    ],
+    "graphs": {
+        "agent_new":  "./kratos/kai_raja.py:kai"
+    },
+    "env": ".env"
+}
