@@ -1,5 +1,5 @@
 from langchain_ollama import ChatOllama
-
+from langchain_openai import ChatOpenAI
 from enum import Enum
 from typing import Union, Any
 from dotenv import load_dotenv
@@ -68,8 +68,15 @@ class LLMFactory:
                 api_key=api_key,
                 base_url=provider_config["api_base"]
             )
+        elif model_provider == ModelProvider.OPENAI:
+            model_to_use = model_name or provider_config["default_model"]
+            api_key = os.getenv("OPENAI_API_KEY")
+            return ChatOpenAI(
+                openai_api_key=api_key,
+                temperature=0.7, max_completion_tokens=20000
+            )
         elif model_provider == ModelProvider.DEEPSEEK:
-            from langchain_openai import ChatOpenAI
+            
             # Use provided model_name or fall back to default
             model_to_use = model_name or provider_config["default_model"]
             api_key = os.getenv("DEEPSEEK_API_KEY")
@@ -82,7 +89,6 @@ class LLMFactory:
                 temperature=0.7, max_completion_tokens=20000
             )
         elif model_provider == ModelProvider.OPENROUTER:
-            from langchain_openai import ChatOpenAI
             # Use provided model_name or fall back to default
             model_to_use = model_name or provider_config["default_model"]
             api_key = os.getenv("OPENROUTER_API_KEY")
