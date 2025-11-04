@@ -1,9 +1,10 @@
-from typing import List
+from typing import Iterable, List, Sequence
 
 from deepagents.graph import SubAgent
 from langchain.tools import BaseTool
 
-from kratos.subagents.agents import ALPHA_VANTAGE_SUBAGENTS
+from kratos.subagents.registry import SubAgentSpec, ToolBinding, registry
+from kratos.subagents import specs  # noqa: F401  # ensure registration side-effects
 
 
 ADDITIONAL_INSTRUCTIONS = """
@@ -87,28 +88,46 @@ def get_financial_tools() -> list[BaseTool]:
     return TOOLS
 
 
-def build_subagents() -> list[SubAgent]:
-    """Build a list of financial subagents with enhanced prompts and tools."""
-    subagents = []
+def _tool_name(binding: ToolBinding) -> str:
+    return binding.id
+
+
+def list_subagent_specs(names: Iterable[str] | None = None) -> List[SubAgentSpec]:
+    """Return registered subagent specs, optionally filtered by name."""
+    return registry.list(names)
+
+
+def build_subagents(enabled: Sequence[str] | None = None) -> list[SubAgent]:
+    """Build a list of financial subagents with enhanced prompts and tools.
+
+    Args:
+        enabled: Optional sequence of subagent names to include. Defaults to all.
+    """
+    specs_to_build = list_subagent_specs(enabled)
+    subagents: list[SubAgent] = []
     tools = get_financial_tools()
+    tool_map = {tool.name: tool for tool in tools}
 
-    for sub_agent_config in ALPHA_VANTAGE_SUBAGENTS:
-        sub_agent_tool_names = [tool["tool"] for tool in sub_agent_config["tools"]]
+    for spec in specs_to_build:
+        sub_agent_tool_names = [_tool_name(binding) for binding in spec.tools]
 
-        # Extract output format and enhance system prompt
-        output_format = sub_agent_config.get("output_format", {})
+        output_format = spec.output_format or {}
         enhanced_prompt = build_enhanced_system_prompt(
-            base_prompt=sub_agent_config["system_prompt"],
+            base_prompt=spec.prompt,
             output_format=output_format,
             additional_instructions=ADDITIONAL_INSTRUCTIONS,
         )
 
+        matched_tools = [
+            tool_map[name] for name in sub_agent_tool_names if name in tool_map
+        ]
+
         subagents.append(
             SubAgent(
-                name=sub_agent_config["category"],
-                description=sub_agent_config["description"],
+                name=spec.name,
+                description=spec.description,
                 system_prompt=enhanced_prompt,
-                tools=[tool for tool in tools if tool.name in sub_agent_tool_names],
+                tools=matched_tools,
             )
         )
 
@@ -117,4 +136,5 @@ def build_subagents() -> list[SubAgent]:
 
 __all__ = [
     "build_subagents",
+    "list_subagent_specs",
 ]

@@ -1,4 +1,4 @@
-# Kratos v2 – LangGraph DeepAgents for Financial Analysis
+# 🧠 Kratos v2 – LangGraph DeepAgents for Financial Analysis
 
 Kratos v2 packages a LangGraph DeepAgents deployment that specializes in multi-agent financial research. The project combines a configurable LLM factory, a rich suite of financial tooling built on `yfinance`, persistent file management via a FileVault middleware, and explainable code-execution subagents that can extend analyses on demand.
 

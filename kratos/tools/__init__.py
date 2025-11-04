@@ -14,6 +14,7 @@ from langchain_core.tools import StructuredTool, InjectedToolArg
 
 from kratos.subagents.agents import ALPHA_VANTAGE_SUBAGENTS
 from kratos.tools.repl_tools import SESSION_CODE_EXECUTOR
+from kratos.tools.rbase_tool import RMARKDOWN_PDF_EXECUTOR
 from kratos.tools.search_tools import search_news, search_web
 
 from kratos.tools.fin_tools.alpha_intelligence import HANDLERS as ALPHA_INTELLIGENCE_HANDLERS
@@ -34,6 +35,7 @@ import uuid
 
 ADDITIONAL_TOOLS: List[Any] = [
     SESSION_CODE_EXECUTOR,
+    RMARKDOWN_PDF_EXECUTOR,
     search_news,
     search_web,
 ]
