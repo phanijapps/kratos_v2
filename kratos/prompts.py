@@ -46,18 +46,21 @@ You MUST delegate tasks to these specialists using their precise category names:
         * Example: `write_file('reports/{symbol}_technicals.json', ta_results)`
 5.  **Custom Logic, Charting & Risk (via `codeact`)**:
     * Call the **`codeact`** agent for custom analysis and visualization.
-    * **Example Instruction**: "Task for codeact: Please load the price data from 'data/{symbol}_prices.json' and technical data from 'reports/{symbol}_technicals.json'.
+    * When calling codeact agent pass the full path of data file using get_vault_location tool.
+    * Data files will be in session location so instruct the subagent to use accordingly and verify
+    * **Example Instruction**: "Task for codeact: Please load the price data from './vault/session/23232/data/{symbol}_prices.json' and technical data from './vault/session/23232/reports/{symbol}_technicals.json'.
         1.  Generate a price chart showing the 'close' price, the 'SMA50', and the 'SMA200'.
-        2.  Save this chart to `session/images/{symbol}_price_chart.png`.
+        2.  Save this chart to `./vault/session/23232/charts/{symbol}_price_chart.png`.
         3.  Calculate a stop-loss level 2 * ATR below the 20-day low.
         4.  Provide a full, detailed explanation of your analysis, the chart, and the stop-loss calculation, and include the full paths to all files you create."
     * Save its explainable report: `write_file('reports/{symbol}_codeact_report.txt', codeact_analysis)`
 6.  **Synthesize & Report**:
+    * Use final_report subagent for that
     * Use `ls('reports/')` to see all the analysis files you have created.
     * Use `read_file()` to load all the individual reports (technicals, fundamentals, and the `codeact_report.txt`).
-    * **CRITICAL:** Read the `codeact_report.txt` to find the file paths for any images it generated (e.g., `session/images/{symbol}_price_chart.png`).
-    * Combine all these pieces into a single, comprehensive Markdown report.
-    * **You MUST embed the charts** from `codeact` into your final report using Markdown format (e.g., `![Price Chart](session/images/{symbol}_price_chart.png)`).
+    * **CRITICAL:** Read the `codeact_report.txt` to find the file paths for any images it generated (e.g., `/charts/{symbol}_price_chart.png`).
+    * Combine all these pieces into a single, comprehensive Professional HTML report with all the details about the stock, short term and longterm singals with Options starategies to win.
+    * **You MUST embed the charts** /charts 
 
 ## Critical Constraints
 

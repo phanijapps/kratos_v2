@@ -1,4 +1,5 @@
 from langchain_core.tools import tool
+
 from pydantic import BaseModel, Field
 from dataclasses import dataclass, field as dataclass_field
 from typing import Any, List, Dict, Optional
@@ -10,11 +11,11 @@ import time
 class ExecuteFileArgs(BaseModel):
     """Input schema for executing Python files."""
     
-    py_file_path: str = Field(
-        description="Absolute or relative path to the Python file to execute. Example: '/path/to/script.py' or 'scripts/analysis.py'"
+    py_file_name: str = Field(
+        description="Python analysis file to execute Example: 'script.py' or 'analysis.py'"
     )
-    session_id: str = Field(
-        description="Unique identifier for the execution session to track and isolate execution contexts. Example: 'session_123' or 'user_abc_task_1'"
+    code_path: str = Field(
+        description="Abosolute path of code location Example '.vault/sessions/343432.34324/code'"
     )
 
 
@@ -39,7 +40,8 @@ class ExecutionResponse:
     args_schema=ExecuteFileArgs,
     return_direct=False,
 )
-def session_code_executor(py_file_path: str, session_id: str) -> ExecutionResponse:
+def session_code_executor(py_file_name: str, 
+                          code_path: str) -> ExecutionResponse:
     """Execute a Python file in an isolated subprocess and capture comprehensive execution results.
     
     This tool runs Python scripts safely by executing them in separate processes with timeout protection.
@@ -50,8 +52,8 @@ def session_code_executor(py_file_path: str, session_id: str) -> ExecutionRespon
     - Capture and analyze script output and errors
     
     Args:
-        py_file_path: Path to the Python file to execute (e.g., 'generated_script.py')
-        session_id: Session identifier for tracking execution context (e.g., 'session_abc123')
+        py_file_name: Name of the file to execute (e.g., 'generated_script.py')
+        code_path: Path where code is generated (e.g. './vault/session/32234324/code)
     
     Returns:
         ExecutionResponse object containing success status, outputs, errors, and execution metrics
@@ -59,13 +61,18 @@ def session_code_executor(py_file_path: str, session_id: str) -> ExecutionRespon
     Example:
         result = execute_file(
             py_file_path="data_analysis.py",
-            session_id="session_001"
+            session_id="./vault/session/32234324/code"
         )
         if result.success:
             print(f"Output: {result.stdout}")
         else:
             print(f"Error: {result.error_message}")
     """
+    # Only save if payload is large AND session_id is available
+    
+    py_file_path = f"{code_path}/{py_file_name}"
+    print(f"Trying to Execute {py_file_path}")
+
     start_time = time.time()
     
     try:
