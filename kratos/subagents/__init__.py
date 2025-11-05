@@ -8,6 +8,9 @@ from kratos.subagents import specs  # noqa: F401  # ensure registration side-eff
 
 
 ADDITIONAL_INSTRUCTIONS = """
+!!Important!!?: Run get_session_summary tool first and use appropriate relative locations to write_files.
+Example: json files to /data. reports to /reports, python code to /code
+
 For tools that return large result sets:
 1. Offload results to filesystem immediately using write_file
 2. Process results via subtask delegation to relevant subagents
@@ -16,7 +19,7 @@ For tools that return large result sets:
 
 When handling technical indicators (MACD, SMA, RSI, etc.):
 - Delegate ONE indicator per subagent call to minimize context usage
-- Example: task('technical_indicators', 'Calculate SMA for PTON and save to reports/pton_sma.json')
+- Example: task('technical_indicators', 'Calculate SMA for PTON and save to /reports/pton_sma.json')
 - Store each indicator result in separate files: {symbol}_{indicator}_report.txt
 - Use ls to verify file creation, read_file to retrieve specific reports
 """

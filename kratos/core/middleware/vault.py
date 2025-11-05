@@ -15,6 +15,7 @@ import os
 import json
 import sqlite3
 from pathlib import Path
+from anyio import Path as AsyncPath
 from datetime import datetime
 from typing import Optional, Dict, List, Any
 import hashlib
@@ -78,6 +79,7 @@ class FileVault:
         
         # Session tracking
         self.session_stats = {}
+
     
     # ============================================================================
     # SQLITE BACKEND (Recommended for Production)
@@ -387,25 +389,25 @@ class FileVault:
         
         return storage_path
     
+    
     def get_storage_dir_path(
             self,
             asset_type: str,
             namespace: str = "default",
             session_id: Optional[str] = None
-    ) -> Path:
+    ) -> str:
         if session_id:
-            storage_path = self.sessions_dir / session_id / asset_type
+            storage_path = Path(self.sessions_dir / session_id / asset_type)
         else:
-            storage_path = self.persistent_dir / namespace / asset_type
-        
-        dir_location = self._validate_path(storage_path)
+            storage_path = Path(self.persistent_dir / namespace / asset_type)
 
-        print(f"Directory Location {dir_location}")
-
+        print(f"Storage path {storage_path}")
         # Create parent directories
         storage_path.parent.mkdir(parents=True, exist_ok=True)
+        storage_path.mkdir(exist_ok=True)
+        #os.makedirs(clean_path,exist_ok=True)
         
-        return storage_path
+        return str(storage_path)
         
     
     def get_pwd(
@@ -575,6 +577,100 @@ class FileVault:
             return self._list_files_sqlite(namespace, session_id, path_prefix)
         else:
             return self._list_files_json(namespace, session_id, path_prefix)
+
+
+    def list_files_filesystem(
+        self,
+        namespace: Optional[str] = None,
+        session_id: Optional[str] = None,
+        path_prefix: Optional[str] = None,
+        is_shared: Optional[bool] = False
+    ) -> List[Dict]:
+        """
+        List files with optional filtering.
+        
+        Args:
+            namespace: Filter by namespace
+            session_id: Filter by session
+            path_prefix: Filter by path prefix
+            
+        Returns:
+            List of file metadata dicts
+        """
+        if is_shared:
+            session_id = "shared"
+        ns = namespace or "default"
+        base_dir = self.sessions_dir / session_id if session_id else self.persistent_dir / ns
+        if not base_dir.exists():
+            return []
+
+        normalized_prefix = None
+        if path_prefix:
+            normalized_prefix = self._validate_path(path_prefix)
+            # Ensure the prefix is rooted and refers to this storage
+            normalized_prefix = normalized_prefix.rstrip("/")
+
+            target_path = base_dir / normalized_prefix.lstrip("/")
+            if target_path.is_file():
+                stat_result = target_path.stat()
+                virtual_path = normalized_prefix or "/"
+                return [
+                    {
+                        "file_id": self._generate_file_id(virtual_path, ns, session_id),
+                        "file_path": virtual_path,
+                        "namespace": ns,
+                        "session_id": session_id,
+                        "storage_path": str(target_path),
+                        "content_hash": None,
+                        "size_bytes": stat_result.st_size,
+                        "tags": [],
+                        "created_at": datetime.utcfromtimestamp(stat_result.st_ctime).isoformat(),
+                        "modified_at": datetime.utcfromtimestamp(stat_result.st_mtime).isoformat(),
+                        "access_count": 0
+                    }
+                ]
+
+        results: List[Dict] = []
+        stack = [base_dir]
+
+        while stack:
+            current = stack.pop()
+            try:
+                with os.scandir(current) as it:
+                    for entry in it:
+                        entry_path = Path(entry.path)
+                        if entry.is_dir(follow_symlinks=False):
+                            stack.append(entry_path)
+                            continue
+
+                        relative_path = entry_path.relative_to(base_dir).as_posix()
+                        virtual_path = f"/{relative_path}"
+
+                        if normalized_prefix:
+                            if virtual_path != normalized_prefix and not virtual_path.startswith(f"{normalized_prefix}/"):
+                                continue
+
+                        stat_result = entry.stat(follow_symlinks=False)
+                        results.append(
+                            {
+                                "file_id": self._generate_file_id(virtual_path, ns, session_id),
+                                "file_path": virtual_path,
+                                "namespace": ns,
+                                "session_id": session_id,
+                                "storage_path": str(entry_path),
+                                "content_hash": None,
+                                "size_bytes": stat_result.st_size,
+                                "tags": [],
+                                "created_at": datetime.utcfromtimestamp(stat_result.st_ctime).isoformat(),
+                                "modified_at": datetime.utcfromtimestamp(stat_result.st_mtime).isoformat(),
+                                "access_count": 0
+                            }
+                        )
+            except FileNotFoundError:
+                continue
+
+        results.sort(key=lambda item: item["file_path"])
+        return results
     
     def edit_file(
         self,
