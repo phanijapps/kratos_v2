@@ -46,7 +46,7 @@ You MUST delegate tasks to these specialists using their precise category names:
         * Example: `write_file('reports/{symbol}_technicals.json', ta_results)`
 5.  **Custom Logic, Charting & Risk (via `codeact`)**:
     * Call the **`codeact`** agent for custom analysis and visualization.
-    * When calling codeact agent pass the full path of data file using get_vault_location tool.
+    * When calling codeact agent pass the full path of data file using get_session_summary tool.
     * Data files will be in session location so instruct the subagent to use accordingly and verify
     * **Example Instruction**: "Task for codeact: Please load the price data from './vault/session/23232/data/{symbol}_prices.json' and technical data from './vault/session/23232/reports/{symbol}_technicals.json'.
         1.  Generate a price chart showing the 'close' price, the 'SMA50', and the 'SMA200'.

@@ -13,7 +13,7 @@ Features:
 FIXED: Pydantic JsonSchema compatibility using InjectedToolArg
 """
 
-from typing import Any, Callable, Optional, List, Dict, Annotated, Literal
+from typing import Any, Callable, Optional, List, Dict, Annotated, Literal, TypedDict
 from operator import add
 from collections.abc import Awaitable
 from langchain_core.tools import tool, InjectedToolArg  # ADDED InjectedToolArg
@@ -49,12 +49,18 @@ def merge_if_not_exists(x: Optional[str], y: Optional[str]) -> Optional[str]:
         return x
     return y
 
+class ContextPath(TypedDict):
+    relative_path: str
+    absolute_path: str
+    description: str
+
 class FileVaultState(AgentState):
     """
     Enhanced state schema for FileVault middleware.
     """
     session_id: Annotated[Optional[str], merge_if_not_exists]
     namespace: Annotated[Optional[str], merge_if_not_exists]
+    context_data_loc:Annotated[Optional[list[ContextPath]], merge_if_not_exists]
     files_created: Annotated[Optional[int], add]  # Can accumulate
     files_read: Annotated[Optional[int], add]     # Can accumulate  
     total_bytes_written: Annotated[Optional[int], add]  # Can accumulate
@@ -115,6 +121,7 @@ class ContextVaultMiddleware(AgentMiddleware):
         
         # Create tools
         self.tools = self._create_tools()
+        
         
         # System prompt (domain-agnostic)
         self.system_prompt = self._generate_system_prompt()
@@ -315,7 +322,7 @@ If a file isn't found:
                 else:
                     namespace, session_id = "default", None
                 
-                files = vault.list_files(
+                files = vault.list_files_filesystem(
                     namespace=namespace,
                     session_id=session_id,
                     path_prefix=path,
@@ -422,7 +429,7 @@ If a file isn't found:
                 logger.error(f"Error resolving workspace directory: {e}")
                 return format_error("PWD Error", str(e))
             
-        @tool
+        #@tool
         def get_vault_location(
             asset_type: Literal["code","tool_results","reports","charts"],
             runtime: Annotated[Optional[Any], InjectedToolArg()] = None 
@@ -444,7 +451,7 @@ If a file isn't found:
                 
                 location = vault.get_storage_dir_path(asset_type=asset_type, namespace=namespace, session_id=session_id)
                 print(f"Location is {location}")
-                return str(location)
+                return location
             except Exception as ex:
                 return f"Error fetching location for get vault session for asset {asset_type}"
         
@@ -565,8 +572,10 @@ If a file isn't found:
                     return "⚠️  No session context available"
                 
                 session_id = runtime.state.get("session_id")
+                context_data_loc = runtime.state.get("context_data_loc")
                 if not session_id:
                     return "⚠️  No active session (using persistent storage)"
+                
                 
                 summary = vault.get_session_summary(session_id)
                 
@@ -585,6 +594,14 @@ If a file isn't found:
                     count = stats['count']
                     size_kb = stats['size'] / 1024
                     output.append(f"  {dir_name:<20} {count:>2} files, {size_kb:>8.1f}KB")
+                
+                output.append(f"""
+                                **Context Data (Directories with explanation)** :
+                                {context_data_loc}
+                              """)
+                
+                print(f"{output}")
+
                 
                 return "\n".join(output)
                 
@@ -826,7 +843,7 @@ If a file isn't found:
             except Exception as e:
                 return format_error("Grep Search Error", str(e))
         
-        tools = [ls, read_file, pwd, write_file, edit_file, get_session_summary, glob_search, grep_search, get_vault_location]
+        tools = [ls, read_file, pwd, write_file, edit_file, get_session_summary, glob_search, grep_search]
         return tools
     
     def before_agent(self, state: AgentState, runtime: Any) -> Optional[Dict[str, Any]]:
@@ -837,12 +854,37 @@ If a file isn't found:
             updates["namespace"] = self.default_namespace
         if "session_id" not in state or state["session_id"] is None:
             updates["session_id"] = str(time.time() * 1000)
+            self.session_id = updates["session_id"]
         if "files_created" not in state:
             updates["files_created"] = 0
         if "files_read" not in state:
             updates["files_read"] = 0
         if "total_bytes_written" not in state:
             updates["total_bytes_written"] = 0
+
+        if "context_data_loc" not in state:
+            print("updating context data_loca")
+            updates["context_data_loc"]=[
+            ContextPath(relative_path="/code", 
+                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="code"),
+                        description="Location where ananlysis Python or r-base code is saved"),
+            ContextPath(relative_path="/charts", 
+                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="charts"),
+                        description="Location where Charts png files are saved."),
+            ContextPath(relative_path="/reports", 
+                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="reports"),
+                        description="Location where reports are saved"),
+            ContextPath(relative_path="/data", 
+                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="data"),
+                        description="Location where data from tool calls are saved"),
+            ContextPath(relative_path="/analysis", 
+                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="analysis"),
+                        description="Location where agent analysis is stored"),
+            ContextPath(relative_path="/tool_results", 
+                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="tool_results"),
+                        description="Location where Large tool results are saved.")
+          
+        ]
         
         return updates if updates else None
     
