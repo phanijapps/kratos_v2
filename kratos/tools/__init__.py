@@ -133,7 +133,7 @@ def _get_payload(tool_name: str, result: Dict[str, Any], runtime: ToolRuntime) -
     result.setdefault("success", True)
 
     # Check for large payload
-    threshold = 5000  # tokens
+    threshold = 3000  # tokens
     json_str = json.dumps(result)
     estimated_tokens = len(json_str) // 4  # Rough estimate
 
