@@ -1,0 +1,1473 @@
+{
+  "base.get_quote": {
+    "status": "ok",
+    "data": {
+      "tool": "GLOBAL_QUOTE",
+      "quote": {
+        "symbol": "AAPL",
+        "price": null,
+        "currency": "USD",
+        "previous_close": null,
+        "regular_market_change": null,
+        "regular_market_change_percent": null,
+        "regular_market_time": null
+      },
+      "data": [
+        {
+          "timestamp": "2025-11-07T05:00:00",
+          "Open": 269.799988,
+          "High": 272.290009,
+          "Low": 266.769989,
+          "Close": 268.470001,
+          "Adj Close": 268.470001,
+          "Volume": 48203600,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        }
+      ]
+    }
+  },
+  "base.get_historical_data": {
+    "status": "ok",
+    "data": {
+      "tool": "TIME_SERIES_DAILY",
+      "symbol": "AAPL",
+      "interval": "1d",
+      "period": "1mo",
+      "start": null,
+      "end": null,
+      "adjusted": true,
+      "data": [
+        {
+          "timestamp": "2025-10-08T04:00:00",
+          "Open": 256.519989,
+          "High": 258.519989,
+          "Low": 256.109985,
+          "Close": 258.059998,
+          "Volume": 36496900,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        {
+          "timestamp": "2025-10-09T04:00:00",
+          "Open": 257.809998,
+          "High": 258.0,
+          "Low": 253.139999,
+          "Close": 254.039993,
+          "Volume": 38322000,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        {
+          "timestamp": "2025-10-10T04:00:00",
+          "Open": 254.940002,
+          "High": 256.380005,
+          "Low": 244.0,
+          "Close": 245.270004,
+          "Volume": 61999100,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        {
+          "timestamp": "2025-10-13T04:00:00",
+          "Open": 249.380005,
+          "High": 249.690002,
+          "Low": 245.559998,
+          "Close": 247.660004,
+          "Volume": 38142900,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        {
+          "timestamp": "2025-10-14T04:00:00",
+          "Open": 246.600006,
+          "High": 248.850006,
+          "Low": 244.699997,
+          "Close": 247.770004,
+          "Volume": 35478000,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        "... 18 more entries ..."
+      ]
+    }
+  },
+  "base.get_bulk_quotes": {
+    "status": "ok",
+    "data": {
+      "tool": "REALTIME_BULK_QUOTES",
+      "quotes": [
+        {
+          "symbol": "AAPL",
+          "price": null,
+          "currency": "USD",
+          "regular_market_change": null,
+          "regular_market_change_percent": null,
+          "regular_market_time": null
+        },
+        {
+          "symbol": "MSFT",
+          "price": null,
+          "currency": "USD",
+          "regular_market_change": null,
+          "regular_market_change_percent": null,
+          "regular_market_time": null
+        },
+        {
+          "symbol": "GOOGL",
+          "price": null,
+          "currency": "USD",
+          "regular_market_change": null,
+          "regular_market_change_percent": null,
+          "regular_market_time": null
+        }
+      ]
+    }
+  },
+  "base.search_symbols": {
+    "status": "ok",
+    "data": {
+      "tool": "SYMBOL_SEARCH",
+      "query": "apple",
+      "region": "US",
+      "error": "rate_limit",
+      "message": "Yahoo Finance API rate limit exceeded. Please try again later.",
+      "suggestion": "Try searching for a more specific symbol or company name, or try again later."
+    }
+  },
+  "base.get_market_status": {
+    "status": "ok",
+    "data": {
+      "tool": "MARKET_STATUS",
+      "status": {
+        "region": "US",
+        "timestamp_utc": "2025-11-08T18:14:38.009315+00:00",
+        "is_weekend": true,
+        "is_open": false,
+        "hours": {
+          "open": "09:30",
+          "close": "16:00",
+          "timezone": "America/New_York"
+        },
+        "note": "Status approximated using standard exchange hours; holidays not accounted for."
+      }
+    }
+  },
+  "technical.technical_analysis": {
+    "status": "ok",
+    "data": {
+      "tool": "TECHNICAL_ANALYSIS",
+      "symbol": "AAPL",
+      "period": "6mo",
+      "interval": "1d",
+      "indicators": {
+        "RSI": {
+          "tool": "RSI",
+          "symbol": "AAPL",
+          "interval": "1d",
+          "period": "6mo",
+          "data": [
+            {
+              "timestamp": "2025-05-08T04:00:00",
+              "RSI_14": null
+            },
+            {
+              "timestamp": "2025-05-09T04:00:00",
+              "RSI_14": 100.0
+            },
+            {
+              "timestamp": "2025-05-12T04:00:00",
+              "RSI_14": 100.0
+            },
+            {
+              "timestamp": "2025-05-13T04:00:00",
+              "RSI_14": 100.0
+            },
+            {
+              "timestamp": "2025-05-14T04:00:00",
+              "RSI_14": 97.602372
+            },
+            "... 123 more entries ..."
+          ]
+        },
+        "MACD": {
+          "tool": "MACD",
+          "symbol": "AAPL",
+          "interval": "1d",
+          "period": "6mo",
+          "data": [
+            {
+              "timestamp": "2025-05-08T04:00:00",
+              "MACD_12_26_9": null,
+              "MACDh_12_26_9": null,
+              "MACDs_12_26_9": null
+            },
+            {
+              "timestamp": "2025-05-09T04:00:00",
+              "MACD_12_26_9": null,
+              "MACDh_12_26_9": null,
+              "MACDs_12_26_9": null
+            },
+            {
+              "timestamp": "2025-05-12T04:00:00",
+              "MACD_12_26_9": null,
+              "MACDh_12_26_9": null,
+              "MACDs_12_26_9": null
+            },
+            {
+              "timestamp": "2025-05-13T04:00:00",
+              "MACD_12_26_9": null,
+              "MACDh_12_26_9": null,
+              "MACDs_12_26_9": null
+            },
+            {
+              "timestamp": "2025-05-14T04:00:00",
+              "MACD_12_26_9": null,
+              "MACDh_12_26_9": null,
+              "MACDs_12_26_9": null
+            },
+            "... 123 more entries ..."
+          ]
+        },
+        "SMA": {
+          "tool": "SMA",
+          "symbol": "AAPL",
+          "interval": "1d",
+          "period": "6mo",
+          "data": [
+            {
+              "timestamp": "2025-05-08T04:00:00",
+              "SMA_20": null
+            },
+            {
+              "timestamp": "2025-05-09T04:00:00",
+              "SMA_20": null
+            },
+            {
+              "timestamp": "2025-05-12T04:00:00",
+              "SMA_20": null
+            },
+            {
+              "timestamp": "2025-05-13T04:00:00",
+              "SMA_20": null
+            },
+            {
+              "timestamp": "2025-05-14T04:00:00",
+              "SMA_20": null
+            },
+            "... 123 more entries ..."
+          ]
+        }
+      },
+      "price_data": [
+        {
+          "timestamp": "2025-10-13T04:00:00",
+          "Open": 249.380005,
+          "High": 249.690002,
+          "Low": 245.559998,
+          "Close": 247.660004,
+          "Volume": 38142900,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        {
+          "timestamp": "2025-10-14T04:00:00",
+          "Open": 246.600006,
+          "High": 248.850006,
+          "Low": 244.699997,
+          "Close": 247.770004,
+          "Volume": 35478000,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        {
+          "timestamp": "2025-10-15T04:00:00",
+          "Open": 249.490005,
+          "High": 251.820007,
+          "Low": 247.470001,
+          "Close": 249.339996,
+          "Volume": 33893600,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        {
+          "timestamp": "2025-10-16T04:00:00",
+          "Open": 248.25,
+          "High": 249.039993,
+          "Low": 245.130005,
+          "Close": 247.449997,
+          "Volume": 39777000,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        {
+          "timestamp": "2025-10-17T04:00:00",
+          "Open": 248.020004,
+          "High": 253.380005,
+          "Low": 247.270004,
+          "Close": 252.289993,
+          "Volume": 49147000,
+          "Dividends": 0.0,
+          "Stock Splits": 0.0
+        },
+        "... 15 more entries ..."
+      ]
+    }
+  },
+  "technical.calculate_rsi": {
+    "status": "ok",
+    "data": {
+      "tool": "RSI",
+      "symbol": "AAPL",
+      "interval": "1d",
+      "period": "6mo",
+      "data": [
+        {
+          "timestamp": "2025-05-08T04:00:00",
+          "RSI_14": null
+        },
+        {
+          "timestamp": "2025-05-09T04:00:00",
+          "RSI_14": 100.0
+        },
+        {
+          "timestamp": "2025-05-12T04:00:00",
+          "RSI_14": 100.0
+        },
+        {
+          "timestamp": "2025-05-13T04:00:00",
+          "RSI_14": 100.0
+        },
+        {
+          "timestamp": "2025-05-14T04:00:00",
+          "RSI_14": 97.602372
+        },
+        "... 123 more entries ..."
+      ]
+    }
+  },
+  "technical.calculate_macd": {
+    "status": "ok",
+    "data": {
+      "tool": "MACD",
+      "symbol": "AAPL",
+      "interval": "1d",
+      "period": "6mo",
+      "data": [
+        {
+          "timestamp": "2025-05-08T04:00:00",
+          "MACD_12_26_9": null,
+          "MACDh_12_26_9": null,
+          "MACDs_12_26_9": null
+        },
+        {
+          "timestamp": "2025-05-09T04:00:00",
+          "MACD_12_26_9": null,
+          "MACDh_12_26_9": null,
+          "MACDs_12_26_9": null
+        },
+        {
+          "timestamp": "2025-05-12T04:00:00",
+          "MACD_12_26_9": null,
+          "MACDh_12_26_9": null,
+          "MACDs_12_26_9": null
+        },
+        {
+          "timestamp": "2025-05-13T04:00:00",
+          "MACD_12_26_9": null,
+          "MACDh_12_26_9": null,
+          "MACDs_12_26_9": null
+        },
+        {
+          "timestamp": "2025-05-14T04:00:00",
+          "MACD_12_26_9": null,
+          "MACDh_12_26_9": null,
+          "MACDs_12_26_9": null
+        },
+        "... 123 more entries ..."
+      ]
+    }
+  },
+  "technical.calculate_bollinger_bands": {
+    "status": "ok",
+    "data": {
+      "tool": "BBANDS",
+      "symbol": "AAPL",
+      "interval": "1d",
+      "period": "6mo",
+      "data": [
+        {
+          "timestamp": "2025-05-08T04:00:00",
+          "BBL_20_2.0_2.0": null,
+          "BBM_20_2.0_2.0": null,
+          "BBU_20_2.0_2.0": null,
+          "BBB_20_2.0_2.0": null,
+          "BBP_20_2.0_2.0": null
+        },
+        {
+          "timestamp": "2025-05-09T04:00:00",
+          "BBL_20_2.0_2.0": null,
+          "BBM_20_2.0_2.0": null,
+          "BBU_20_2.0_2.0": null,
+          "BBB_20_2.0_2.0": null,
+          "BBP_20_2.0_2.0": null
+        },
+        {
+          "timestamp": "2025-05-12T04:00:00",
+          "BBL_20_2.0_2.0": null,
+          "BBM_20_2.0_2.0": null,
+          "BBU_20_2.0_2.0": null,
+          "BBB_20_2.0_2.0": null,
+          "BBP_20_2.0_2.0": null
+        },
+        {
+          "timestamp": "2025-05-13T04:00:00",
+          "BBL_20_2.0_2.0": null,
+          "BBM_20_2.0_2.0": null,
+          "BBU_20_2.0_2.0": null,
+          "BBB_20_2.0_2.0": null,
+          "BBP_20_2.0_2.0": null
+        },
+        {
+          "timestamp": "2025-05-14T04:00:00",
+          "BBL_20_2.0_2.0": null,
+          "BBM_20_2.0_2.0": null,
+          "BBU_20_2.0_2.0": null,
+          "BBB_20_2.0_2.0": null,
+          "BBP_20_2.0_2.0": null
+        },
+        "... 123 more entries ..."
+      ]
+    }
+  },
+  "fundamentals.get_fundamentals": {
+    "status": "ok",
+    "data": {
+      "tool": "COMPREHENSIVE_FUNDAMENTALS",
+      "symbol": "AAPL",
+      "company_overview": {
+        "tool": "COMPANY_OVERVIEW",
+        "symbol": "AAPL",
+        "overview": {
+          "longName": "Apple Inc.",
+          "sector": "Technology",
+          "industry": "Consumer Electronics",
+          "marketCap": 3967007326208,
+          "fullTimeEmployees": 166000,
+          "website": "https://www.apple.com",
+          "longBusinessSummary": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company offers iPhone, a line of smartphones; Mac, a line of personal computers; iPad, a line of multi-purpose tablets; and wearables, home, and accessories comprising AirPods, Apple Vision Pro, Apple TV, Apple Watch, Beats products, and HomePod, as well as Apple branded and third-party accessories. It also provides AppleCare support and cloud services; and operates various platforms, including the App Store that allow customers to discover and download applications and digital content, such as books, music, video, games, and podcasts, as well as advertising services include third-party licensing arrangements and its own advertising platforms. In addition, the company offers various subscription-based services, such as Apple Arcade, a game subscription service; Apple Fitness+, a personalized fitness service; Apple Music, which offers users a curated listening experience with on-demand radio stations; Apple News+, a subscription news and magazine service; Apple TV, which offers exclusive original content and live sports; Apple Card, a co-branded credit card; and Apple Pay, a cashless payment service, as well as licenses its intellectual property. The company serves consumers, and small and mid-sized businesses; and the education, enterprise, and government markets. It distributes third-party applications for its products through the App Store. The company also sells its products through its retail and online stores, and direct sales force; and third-party cellular network carriers and resellers. The company was formerly known as Apple Computer, Inc. and changed its name to Apple Inc. in January 2007. Apple Inc. was founded in 1976 and is headquartered in Cupertino, California.",
+          "currency": "USD",
+          "beta": 1.109,
+          "dividendYield": 0.39,
+          "trailingPE": 35.987934,
+          "forwardPE": 32.306858,
+          "priceToBook": 53.79082,
+          "country": "United States",
+          "city": "Cupertino",
+          "phone": "(408) 996-1010"
+        }
+      },
+      "financial_statements": {
+        "tool": "FINANCIAL_STATEMENTS",
+        "symbol": "AAPL",
+        "statements": {
+          "income_statement": {
+            "tool": "INCOME_STATEMENT",
+            "symbol": "AAPL",
+            "data": [
+              {
+                "index": "Tax Effect Of Unusual Items",
+                "2024-09-30 00:00:00": 0.0,
+                "2023-09-30 00:00:00": 0.0,
+                "2022-09-30 00:00:00": 0.0,
+                "2021-09-30 00:00:00": 0.0
+              },
+              {
+                "index": "Tax Rate For Calcs",
+                "2024-09-30 00:00:00": 0.241,
+                "2023-09-30 00:00:00": 0.147,
+                "2022-09-30 00:00:00": 0.162,
+                "2021-09-30 00:00:00": 0.133
+              },
+              {
+                "index": "Normalized EBITDA",
+                "2024-09-30 00:00:00": 134661000000.0,
+                "2023-09-30 00:00:00": 125820000000.0,
+                "2022-09-30 00:00:00": 130541000000.0,
+                "2021-09-30 00:00:00": 123136000000.0
+              },
+              {
+                "index": "Net Income From Continuing Operation Net Minority Interest",
+                "2024-09-30 00:00:00": 93736000000.0,
+                "2023-09-30 00:00:00": 96995000000.0,
+                "2022-09-30 00:00:00": 99803000000.0,
+                "2021-09-30 00:00:00": 94680000000.0
+              },
+              {
+                "index": "Reconciled Depreciation",
+                "2024-09-30 00:00:00": 11445000000.0,
+                "2023-09-30 00:00:00": 11519000000.0,
+                "2022-09-30 00:00:00": 11104000000.0,
+                "2021-09-30 00:00:00": 11284000000.0
+              },
+              "... 34 more entries ..."
+            ]
+          },
+          "balance_sheet": {
+            "tool": "BALANCE_SHEET",
+            "symbol": "AAPL",
+            "data": [
+              {
+                "index": "Treasury Shares Number",
+                "2024-09-30 00:00:00": null,
+                "2023-09-30 00:00:00": 0.0,
+                "2022-09-30 00:00:00": null,
+                "2021-09-30 00:00:00": null
+              },
+              {
+                "index": "Ordinary Shares Number",
+                "2024-09-30 00:00:00": 15116786000.0,
+                "2023-09-30 00:00:00": 15550061000.0,
+                "2022-09-30 00:00:00": 15943425000.0,
+                "2021-09-30 00:00:00": 16426786000.0
+              },
+              {
+                "index": "Share Issued",
+                "2024-09-30 00:00:00": 15116786000.0,
+                "2023-09-30 00:00:00": 15550061000.0,
+                "2022-09-30 00:00:00": 15943425000.0,
+                "2021-09-30 00:00:00": 16426786000.0
+              },
+              {
+                "index": "Net Debt",
+                "2024-09-30 00:00:00": 76686000000.0,
+                "2023-09-30 00:00:00": 81123000000.0,
+                "2022-09-30 00:00:00": 96423000000.0,
+                "2021-09-30 00:00:00": 89779000000.0
+              },
+              {
+                "index": "Total Debt",
+                "2024-09-30 00:00:00": 106629000000.0,
+                "2023-09-30 00:00:00": 111088000000.0,
+                "2022-09-30 00:00:00": 132480000000.0,
+                "2021-09-30 00:00:00": 136522000000.0
+              },
+              "... 63 more entries ..."
+            ]
+          },
+          "cash_flow": {
+            "tool": "CASH_FLOW",
+            "symbol": "AAPL",
+            "data": [
+              {
+                "index": "Free Cash Flow",
+                "2024-09-30 00:00:00": 108807000000.0,
+                "2023-09-30 00:00:00": 99584000000.0,
+                "2022-09-30 00:00:00": 111443000000.0,
+                "2021-09-30 00:00:00": 92953000000.0
+              },
+              {
+                "index": "Repurchase Of Capital Stock",
+                "2024-09-30 00:00:00": -94949000000.0,
+                "2023-09-30 00:00:00": -77550000000.0,
+                "2022-09-30 00:00:00": -89402000000.0,
+                "2021-09-30 00:00:00": -85971000000.0
+              },
+              {
+                "index": "Repayment Of Debt",
+                "2024-09-30 00:00:00": -9958000000.0,
+                "2023-09-30 00:00:00": -11151000000.0,
+                "2022-09-30 00:00:00": -9543000000.0,
+                "2021-09-30 00:00:00": -8750000000.0
+              },
+              {
+                "index": "Issuance Of Debt",
+                "2024-09-30 00:00:00": 0.0,
+                "2023-09-30 00:00:00": 5228000000.0,
+                "2022-09-30 00:00:00": 5465000000.0,
+                "2021-09-30 00:00:00": 20393000000.0
+              },
+              {
+                "index": "Issuance Of Capital Stock",
+                "2024-09-30 00:00:00": null,
+                "2023-09-30 00:00:00": null,
+                "2022-09-30 00:00:00": null,
+                "2021-09-30 00:00:00": 1105000000.0
+              },
+              "... 48 more entries ..."
+            ]
+          }
+        }
+      },
+      "key_metrics": {
+        "tool": "KEY_METRICS",
+        "symbol": "AAPL",
+        "metrics": {
+          "returnOnAssets": 0.22964,
+          "returnOnEquity": 1.71422,
+          "profitMargins": 0.26915,
+          "operatingMargins": 0.31647,
+          "grossMargins": 0.46905,
+          "revenueGrowth": 0.079,
+          "earningsGrowth": 0.912,
+          "currentRatio": 0.893,
+          "quickRatio": 0.771,
+          "debtToEquity": 152.411,
+          "totalDebt": 112377004032,
+          "totalCash": 54697000960,
+          "freeCashflow": 78862254080,
+          "operatingCashflow": 111482003456,
+          "earningsQuarterlyGrowth": 0.864
+        }
+      },
+      "valuation_ratios": {
+        "tool": "VALUATION_RATIOS",
+        "symbol": "AAPL",
+        "ratios": {
+          "trailingPE": 35.987934,
+          "forwardPE": 32.306858,
+          "priceToBook": 53.79082,
+          "priceToSalesTrailing12Months": 9.532386,
+          "enterpriseToRevenue": 9.671,
+          "enterpriseToEbitda": 27.805,
+          "bookValue": 4.991,
+          "enterpriseValue": 4024687394816,
+          "marketCap": 3967007326208
+        }
+      }
+    }
+  },
+  "fundamentals.get_company_overview": {
+    "status": "ok",
+    "data": {
+      "tool": "COMPANY_OVERVIEW",
+      "symbol": "AAPL",
+      "overview": {
+        "longName": "Apple Inc.",
+        "sector": "Technology",
+        "industry": "Consumer Electronics",
+        "marketCap": 3967007326208,
+        "fullTimeEmployees": 166000,
+        "website": "https://www.apple.com",
+        "longBusinessSummary": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company offers iPhone, a line of smartphones; Mac, a line of personal computers; iPad, a line of multi-purpose tablets; and wearables, home, and accessories comprising AirPods, Apple Vision Pro, Apple TV, Apple Watch, Beats products, and HomePod, as well as Apple branded and third-party accessories. It also provides AppleCare support and cloud services; and operates various platforms, including the App Store that allow customers to discover and download applications and digital content, such as books, music, video, games, and podcasts, as well as advertising services include third-party licensing arrangements and its own advertising platforms. In addition, the company offers various subscription-based services, such as Apple Arcade, a game subscription service; Apple Fitness+, a personalized fitness service; Apple Music, which offers users a curated listening experience with on-demand radio stations; Apple News+, a subscription news and magazine service; Apple TV, which offers exclusive original content and live sports; Apple Card, a co-branded credit card; and Apple Pay, a cashless payment service, as well as licenses its intellectual property. The company serves consumers, and small and mid-sized businesses; and the education, enterprise, and government markets. It distributes third-party applications for its products through the App Store. The company also sells its products through its retail and online stores, and direct sales force; and third-party cellular network carriers and resellers. The company was formerly known as Apple Computer, Inc. and changed its name to Apple Inc. in January 2007. Apple Inc. was founded in 1976 and is headquartered in Cupertino, California.",
+        "currency": "USD",
+        "beta": 1.109,
+        "dividendYield": 0.39,
+        "trailingPE": 35.987934,
+        "forwardPE": 32.306858,
+        "priceToBook": 53.79082,
+        "country": "United States",
+        "city": "Cupertino",
+        "phone": "(408) 996-1010"
+      }
+    }
+  },
+  "fundamentals.get_financial_statements": {
+    "status": "ok",
+    "data": {
+      "tool": "FINANCIAL_STATEMENTS",
+      "symbol": "AAPL",
+      "statements": {
+        "income_statement": {
+          "tool": "INCOME_STATEMENT",
+          "symbol": "AAPL",
+          "data": [
+            {
+              "index": "Tax Effect Of Unusual Items",
+              "2024-09-30 00:00:00": 0.0,
+              "2023-09-30 00:00:00": 0.0,
+              "2022-09-30 00:00:00": 0.0,
+              "2021-09-30 00:00:00": 0.0
+            },
+            {
+              "index": "Tax Rate For Calcs",
+              "2024-09-30 00:00:00": 0.241,
+              "2023-09-30 00:00:00": 0.147,
+              "2022-09-30 00:00:00": 0.162,
+              "2021-09-30 00:00:00": 0.133
+            },
+            {
+              "index": "Normalized EBITDA",
+              "2024-09-30 00:00:00": 134661000000.0,
+              "2023-09-30 00:00:00": 125820000000.0,
+              "2022-09-30 00:00:00": 130541000000.0,
+              "2021-09-30 00:00:00": 123136000000.0
+            },
+            {
+              "index": "Net Income From Continuing Operation Net Minority Interest",
+              "2024-09-30 00:00:00": 93736000000.0,
+              "2023-09-30 00:00:00": 96995000000.0,
+              "2022-09-30 00:00:00": 99803000000.0,
+              "2021-09-30 00:00:00": 94680000000.0
+            },
+            {
+              "index": "Reconciled Depreciation",
+              "2024-09-30 00:00:00": 11445000000.0,
+              "2023-09-30 00:00:00": 11519000000.0,
+              "2022-09-30 00:00:00": 11104000000.0,
+              "2021-09-30 00:00:00": 11284000000.0
+            },
+            "... 34 more entries ..."
+          ]
+        },
+        "balance_sheet": {
+          "tool": "BALANCE_SHEET",
+          "symbol": "AAPL",
+          "data": [
+            {
+              "index": "Treasury Shares Number",
+              "2024-09-30 00:00:00": null,
+              "2023-09-30 00:00:00": 0.0,
+              "2022-09-30 00:00:00": null,
+              "2021-09-30 00:00:00": null
+            },
+            {
+              "index": "Ordinary Shares Number",
+              "2024-09-30 00:00:00": 15116786000.0,
+              "2023-09-30 00:00:00": 15550061000.0,
+              "2022-09-30 00:00:00": 15943425000.0,
+              "2021-09-30 00:00:00": 16426786000.0
+            },
+            {
+              "index": "Share Issued",
+              "2024-09-30 00:00:00": 15116786000.0,
+              "2023-09-30 00:00:00": 15550061000.0,
+              "2022-09-30 00:00:00": 15943425000.0,
+              "2021-09-30 00:00:00": 16426786000.0
+            },
+            {
+              "index": "Net Debt",
+              "2024-09-30 00:00:00": 76686000000.0,
+              "2023-09-30 00:00:00": 81123000000.0,
+              "2022-09-30 00:00:00": 96423000000.0,
+              "2021-09-30 00:00:00": 89779000000.0
+            },
+            {
+              "index": "Total Debt",
+              "2024-09-30 00:00:00": 106629000000.0,
+              "2023-09-30 00:00:00": 111088000000.0,
+              "2022-09-30 00:00:00": 132480000000.0,
+              "2021-09-30 00:00:00": 136522000000.0
+            },
+            "... 63 more entries ..."
+          ]
+        },
+        "cash_flow": {
+          "tool": "CASH_FLOW",
+          "symbol": "AAPL",
+          "data": [
+            {
+              "index": "Free Cash Flow",
+              "2024-09-30 00:00:00": 108807000000.0,
+              "2023-09-30 00:00:00": 99584000000.0,
+              "2022-09-30 00:00:00": 111443000000.0,
+              "2021-09-30 00:00:00": 92953000000.0
+            },
+            {
+              "index": "Repurchase Of Capital Stock",
+              "2024-09-30 00:00:00": -94949000000.0,
+              "2023-09-30 00:00:00": -77550000000.0,
+              "2022-09-30 00:00:00": -89402000000.0,
+              "2021-09-30 00:00:00": -85971000000.0
+            },
+            {
+              "index": "Repayment Of Debt",
+              "2024-09-30 00:00:00": -9958000000.0,
+              "2023-09-30 00:00:00": -11151000000.0,
+              "2022-09-30 00:00:00": -9543000000.0,
+              "2021-09-30 00:00:00": -8750000000.0
+            },
+            {
+              "index": "Issuance Of Debt",
+              "2024-09-30 00:00:00": 0.0,
+              "2023-09-30 00:00:00": 5228000000.0,
+              "2022-09-30 00:00:00": 5465000000.0,
+              "2021-09-30 00:00:00": 20393000000.0
+            },
+            {
+              "index": "Issuance Of Capital Stock",
+              "2024-09-30 00:00:00": null,
+              "2023-09-30 00:00:00": null,
+              "2022-09-30 00:00:00": null,
+              "2021-09-30 00:00:00": 1105000000.0
+            },
+            "... 48 more entries ..."
+          ]
+        }
+      }
+    }
+  },
+  "fundamentals.get_key_metrics": {
+    "status": "ok",
+    "data": {
+      "tool": "KEY_METRICS",
+      "symbol": "AAPL",
+      "metrics": {
+        "returnOnAssets": 0.22964,
+        "returnOnEquity": 1.71422,
+        "profitMargins": 0.26915,
+        "operatingMargins": 0.31647,
+        "grossMargins": 0.46905,
+        "revenueGrowth": 0.079,
+        "earningsGrowth": 0.912,
+        "currentRatio": 0.893,
+        "quickRatio": 0.771,
+        "debtToEquity": 152.411,
+        "totalDebt": 112377004032,
+        "totalCash": 54697000960,
+        "freeCashflow": 78862254080,
+        "operatingCashflow": 111482003456,
+        "earningsQuarterlyGrowth": 0.864
+      }
+    }
+  },
+  "fundamentals.get_valuation_ratios": {
+    "status": "ok",
+    "data": {
+      "tool": "VALUATION_RATIOS",
+      "symbol": "AAPL",
+      "ratios": {
+        "trailingPE": 35.987934,
+        "forwardPE": 32.306858,
+        "priceToBook": 53.79082,
+        "priceToSalesTrailing12Months": 9.532386,
+        "enterpriseToRevenue": 9.671,
+        "enterpriseToEbitda": 27.805,
+        "bookValue": 4.991,
+        "enterpriseValue": 4024687394816,
+        "marketCap": 3967007326208
+      }
+    }
+  },
+  "forex.get_exchange_rate": {
+    "status": "ok",
+    "data": {
+      "tool": "CURRENCY_EXCHANGE_RATE",
+      "from_currency": "USD",
+      "to_currency": "EUR",
+      "pair": "USDEUR=X",
+      "rate": 0.8643,
+      "recent": [
+        {
+          "timestamp": "2025-11-03T00:00:00",
+          "Open": 0.86745,
+          "High": 0.8691,
+          "Low": 0.8664,
+          "Close": 0.86745,
+          "Adj Close": 0.86745,
+          "Volume": 0
+        },
+        {
+          "timestamp": "2025-11-04T00:00:00",
+          "Open": 0.86812,
+          "High": 0.87157,
+          "Low": 0.86708,
+          "Close": 0.86812,
+          "Adj Close": 0.86812,
+          "Volume": 0
+        },
+        {
+          "timestamp": "2025-11-05T00:00:00",
+          "Open": 0.87066,
+          "High": 0.87183,
+          "Low": 0.86972,
+          "Close": 0.87066,
+          "Adj Close": 0.87066,
+          "Volume": 0
+        },
+        {
+          "timestamp": "2025-11-06T00:00:00",
+          "Open": 0.86981,
+          "High": 0.87003,
+          "Low": 0.86633,
+          "Close": 0.86981,
+          "Adj Close": 0.86981,
+          "Volume": 0
+        },
+        {
+          "timestamp": "2025-11-07T00:00:00",
+          "Open": 0.86586,
+          "High": 0.86727,
+          "Low": 0.86282,
+          "Close": 0.86586,
+          "Adj Close": 0.86586,
+          "Volume": 0
+        },
+        "... 1 more entries ..."
+      ]
+    }
+  },
+  "forex.convert_currency": {
+    "status": "ok",
+    "data": {
+      "tool": "CURRENCY_CONVERSION",
+      "original_amount": 100,
+      "from_currency": "USD",
+      "to_currency": "JPY",
+      "exchange_rate": 152.947998,
+      "converted_amount": 15294.799805,
+      "conversion_string": "100 USD = 15294.7998 JPY"
+    }
+  },
+  "crypto.get_crypto_price": {
+    "status": "ok",
+    "data": {
+      "tool": "CRYPTO_QUOTE",
+      "symbol": "BTC-USD",
+      "quote": {
+        "symbol": "BTC-USD",
+        "price": null,
+        "currency": "USD",
+        "previous_close": null,
+        "regular_market_change": null,
+        "regular_market_change_percent": null,
+        "regular_market_time": null
+      },
+      "recent": [
+        {
+          "timestamp": "2025-11-04T00:00:00",
+          "Open": 106541.421875,
+          "High": 107264.882812,
+          "Low": 98962.0625,
+          "Close": 101590.523438,
+          "Adj Close": 101590.523438,
+          "Volume": 110967184773
+        },
+        {
+          "timestamp": "2025-11-05T00:00:00",
+          "Open": 101579.234375,
+          "High": 104534.703125,
+          "Low": 98989.914062,
+          "Close": 103891.835938,
+          "Adj Close": 103891.835938,
+          "Volume": 77584934804
+        },
+        {
+          "timestamp": "2025-11-06T00:00:00",
+          "Open": 103893.664062,
+          "High": 104147.304688,
+          "Low": 100336.867188,
+          "Close": 101301.289062,
+          "Adj Close": 101301.289062,
+          "Volume": 63932752861
+        },
+        {
+          "timestamp": "2025-11-07T00:00:00",
+          "Open": 101286.242188,
+          "High": 104052.914062,
+          "Low": 99257.054688,
+          "Close": 103372.40625,
+          "Adj Close": 103372.40625,
+          "Volume": 92168030081
+        },
+        {
+          "timestamp": "2025-11-08T00:00:00",
+          "Open": 103296.953125,
+          "High": 103359.0625,
+          "Low": 101463.195312,
+          "Close": 101957.59375,
+          "Adj Close": 101957.59375,
+          "Volume": 60705103872
+        }
+      ]
+    }
+  },
+  "crypto.get_major_cryptos": {
+    "status": "ok",
+    "data": {
+      "tool": "MAJOR_CRYPTOCURRENCIES",
+      "cryptos": [
+        {
+          "symbol": "BTC-USD",
+          "name": "Bitcoin",
+          "price": null,
+          "change": null,
+          "change_percent": null
+        },
+        {
+          "symbol": "ETH-USD",
+          "name": "Ethereum",
+          "price": null,
+          "change": null,
+          "change_percent": null
+        },
+        {
+          "symbol": "BNB-USD",
+          "name": "Binance Coin",
+          "price": null,
+          "change": null,
+          "change_percent": null
+        },
+        {
+          "symbol": "XRP-USD",
+          "name": "Ripple",
+          "price": null,
+          "change": null,
+          "change_percent": null
+        },
+        {
+          "symbol": "ADA-USD",
+          "name": "Cardano",
+          "price": null,
+          "change": null,
+          "change_percent": null
+        },
+        "... 5 more entries ..."
+      ]
+    }
+  },
+  "commodities.get_commodity_price": {
+    "status": "ok",
+    "data": {
+      "tool": "COMMODITY_QUOTE",
+      "symbol": "GC=F",
+      "name": "Gold",
+      "quote": {
+        "symbol": "GC=F",
+        "price": null,
+        "currency": "USD",
+        "previous_close": null,
+        "regular_market_change": null,
+        "regular_market_change_percent": null,
+        "regular_market_time": null
+      },
+      "recent": [
+        {
+          "timestamp": "2025-11-03T05:00:00",
+          "Open": 3976.199951,
+          "High": 4020.0,
+          "Low": 3959.0,
+          "Close": 4000.300049,
+          "Adj Close": 4000.300049,
+          "Volume": 0
+        },
+        {
+          "timestamp": "2025-11-04T05:00:00",
+          "Open": 3994.199951,
+          "High": 3995.399902,
+          "Low": 3927.399902,
+          "Close": 3947.699951,
+          "Adj Close": 3947.699951,
+          "Volume": 657
+        },
+        {
+          "timestamp": "2025-11-05T05:00:00",
+          "Open": 3929.899902,
+          "High": 3983.5,
+          "Low": 3929.899902,
+          "Close": 3980.300049,
+          "Adj Close": 3980.300049,
+          "Volume": 559
+        },
+        {
+          "timestamp": "2025-11-06T05:00:00",
+          "Open": 4004.0,
+          "High": 4007.5,
+          "Low": 3979.899902,
+          "Close": 3979.899902,
+          "Adj Close": 3979.899902,
+          "Volume": 650
+        },
+        {
+          "timestamp": "2025-11-07T05:00:00",
+          "Open": 3980.800049,
+          "High": 3999.399902,
+          "Low": 3980.800049,
+          "Close": 3999.399902,
+          "Adj Close": 3999.399902,
+          "Volume": 650
+        }
+      ]
+    }
+  },
+  "commodities.get_precious_metals": {
+    "status": "ok",
+    "data": {
+      "tool": "PRECIOUS_METALS",
+      "metals": [
+        {
+          "symbol": "GC=F",
+          "name": "Gold",
+          "price": null,
+          "change": null,
+          "change_percent": null
+        },
+        {
+          "symbol": "SI=F",
+          "name": "Silver",
+          "price": null,
+          "change": null,
+          "change_percent": null
+        },
+        {
+          "symbol": "PL=F",
+          "name": "Platinum",
+          "price": null,
+          "change": null,
+          "change_percent": null
+        },
+        {
+          "symbol": "PA=F",
+          "name": "Palladium",
+          "price": null,
+          "change": null,
+          "change_percent": null
+        }
+      ]
+    }
+  },
+  "economics.get_treasury_rates": {
+    "status": "ok",
+    "data": {
+      "tool": "TREASURY_RATES",
+      "rates": {
+        "3M": {
+          "rate": null,
+          "symbol": "^IRX",
+          "maturity": "3M"
+        },
+        "2Y": {
+          "rate": null,
+          "symbol": "^TNX",
+          "maturity": "2Y"
+        },
+        "10Y": {
+          "rate": null,
+          "symbol": "^TNX",
+          "maturity": "10Y"
+        },
+        "30Y": {
+          "rate": null,
+          "symbol": "^TYX",
+          "maturity": "30Y"
+        }
+      }
+    }
+  },
+  "economics.get_market_sentiment": {
+    "status": "ok",
+    "data": {
+      "tool": "MARKET_SENTIMENT",
+      "sentiment": {
+        "VIX": {
+          "value": null,
+          "symbol": "^VIX",
+          "description": "Volatility Index - Market fear gauge"
+        },
+        "SKEW": {
+          "value": null,
+          "symbol": "^SKEW",
+          "description": "SKEW Index - Tail risk measure"
+        },
+        "VXN": {
+          "value": null,
+          "symbol": "^VXN",
+          "description": "NASDAQ Volatility Index"
+        },
+        "RVX": {
+          "error": "'currency'"
+        }
+      }
+    }
+  },
+  "options.get_options_chain": {
+    "status": "ok",
+    "data": {
+      "tool": "OPTIONS_CHAIN",
+      "symbol": "AAPL",
+      "expiration": "2025-11-14",
+      "available_expirations": [
+        "2025-11-14",
+        "2025-11-21",
+        "2025-11-28",
+        "2025-12-05",
+        "2025-12-12",
+        "... 14 more entries ..."
+      ],
+      "calls": [
+        {
+          "index": 0,
+          "contractSymbol": "AAPL251114C00110000",
+          "lastTradeDate": "2025-11-05T19:11:51",
+          "strike": 110.0,
+          "lastPrice": 161.1,
+          "bid": 157.15,
+          "ask": 160.0,
+          "change": 0.0,
+          "percentChange": 0.0,
+          "volume": 4.0,
+          "openInterest": 1,
+          "impliedVolatility": 2.53516,
+          "inTheMoney": true,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        {
+          "index": 1,
+          "contractSymbol": "AAPL251114C00120000",
+          "lastTradeDate": "2025-11-07T19:14:29",
+          "strike": 120.0,
+          "lastPrice": 147.94,
+          "bid": 147.05,
+          "ask": 149.95,
+          "change": -3.459992,
+          "percentChange": -2.285331,
+          "volume": 1.0,
+          "openInterest": 4,
+          "impliedVolatility": 2.023442,
+          "inTheMoney": true,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        {
+          "index": 2,
+          "contractSymbol": "AAPL251114C00130000",
+          "lastTradeDate": "2025-11-05T19:11:51",
+          "strike": 130.0,
+          "lastPrice": 141.13,
+          "bid": 136.6,
+          "ask": 140.1,
+          "change": 0.0,
+          "percentChange": 0.0,
+          "volume": 6.0,
+          "openInterest": 1,
+          "impliedVolatility": 3.160158,
+          "inTheMoney": true,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        {
+          "index": 3,
+          "contractSymbol": "AAPL251114C00140000",
+          "lastTradeDate": "2025-10-31T14:08:20",
+          "strike": 140.0,
+          "lastPrice": 130.5,
+          "bid": 127.05,
+          "ask": 130.1,
+          "change": 0.0,
+          "percentChange": 0.0,
+          "volume": 1.0,
+          "openInterest": 1,
+          "impliedVolatility": 1.890626,
+          "inTheMoney": true,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        {
+          "index": 4,
+          "contractSymbol": "AAPL251114C00145000",
+          "lastTradeDate": "2025-10-31T14:08:20",
+          "strike": 145.0,
+          "lastPrice": 125.5,
+          "bid": 121.85,
+          "ask": 124.8,
+          "change": 0.0,
+          "percentChange": 0.0,
+          "volume": 2.0,
+          "openInterest": 3,
+          "impliedVolatility": 2.631839,
+          "inTheMoney": true,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        "... 64 more entries ..."
+      ],
+      "puts": [
+        {
+          "index": 0,
+          "contractSymbol": "AAPL251114P00110000",
+          "lastTradeDate": "2025-10-31T13:30:10",
+          "strike": 110.0,
+          "lastPrice": 0.03,
+          "bid": 0.0,
+          "ask": 0.21,
+          "change": 0.0,
+          "percentChange": 0.0,
+          "volume": 2.0,
+          "openInterest": 2,
+          "impliedVolatility": 2.53516,
+          "inTheMoney": false,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        {
+          "index": 1,
+          "contractSymbol": "AAPL251114P00125000",
+          "lastTradeDate": "2025-10-15T16:08:34",
+          "strike": 125.0,
+          "lastPrice": 0.02,
+          "bid": 0.0,
+          "ask": 0.13,
+          "change": 0.0,
+          "percentChange": 0.0,
+          "volume": null,
+          "openInterest": 0,
+          "impliedVolatility": 2.082036,
+          "inTheMoney": false,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        {
+          "index": 2,
+          "contractSymbol": "AAPL251114P00135000",
+          "lastTradeDate": "2025-10-20T13:33:36",
+          "strike": 135.0,
+          "lastPrice": 0.02,
+          "bid": 0.0,
+          "ask": 0.14,
+          "change": 0.0,
+          "percentChange": 0.0,
+          "volume": 1.0,
+          "openInterest": 1,
+          "impliedVolatility": 1.898438,
+          "inTheMoney": false,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        {
+          "index": 3,
+          "contractSymbol": "AAPL251114P00140000",
+          "lastTradeDate": "2025-10-24T15:16:58",
+          "strike": 140.0,
+          "lastPrice": 0.02,
+          "bid": 0.0,
+          "ask": 0.14,
+          "change": 0.0,
+          "percentChange": 0.0,
+          "volume": 392.0,
+          "openInterest": 392,
+          "impliedVolatility": 1.804688,
+          "inTheMoney": false,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        {
+          "index": 4,
+          "contractSymbol": "AAPL251114P00145000",
+          "lastTradeDate": "2025-10-14T17:24:18",
+          "strike": 145.0,
+          "lastPrice": 0.03,
+          "bid": 0.0,
+          "ask": 0.15,
+          "change": 0.0,
+          "percentChange": 0.0,
+          "volume": null,
+          "openInterest": 4,
+          "impliedVolatility": 1.73047,
+          "inTheMoney": false,
+          "contractSize": "REGULAR",
+          "currency": "USD"
+        },
+        "... 52 more entries ..."
+      ],
+      "include_greeks": true
+    }
+  },
+  "options.get_implied_volatility": {
+    "status": "ok",
+    "data": {
+      "tool": "IMPLIED_VOLATILITY",
+      "symbol": "AAPL",
+      "expiration": "2025-11-14",
+      "average_call_iv": 0.801561,
+      "average_put_iv": 0.733223,
+      "call_iv_by_strike": [
+        {
+          "strike": 110.0,
+          "impliedVolatility": 2.53516
+        },
+        {
+          "strike": 120.0,
+          "impliedVolatility": 2.023442
+        },
+        {
+          "strike": 130.0,
+          "impliedVolatility": 3.160158
+        },
+        {
+          "strike": 140.0,
+          "impliedVolatility": 1.890626
+        },
+        {
+          "strike": 145.0,
+          "impliedVolatility": 2.631839
+        },
+        "... 64 more entries ..."
+      ],
+      "put_iv_by_strike": [
+        {
+          "strike": 110.0,
+          "impliedVolatility": 2.53516
+        },
+        {
+          "strike": 125.0,
+          "impliedVolatility": 2.082036
+        },
+        {
+          "strike": 135.0,
+          "impliedVolatility": 1.898438
+        },
+        {
+          "strike": 140.0,
+          "impliedVolatility": 1.804688
+        },
+        {
+          "strike": 145.0,
+          "impliedVolatility": 1.73047
+        },
+        "... 52 more entries ..."
+      ]
+    }
+  },
+  "alpha.calculate_alpha_beta": {
+    "status": "ok",
+    "data": {
+      "tool": "ALPHA_BETA_ANALYSIS",
+      "symbol": "AAPL",
+      "benchmark": "^GSPC",
+      "period": "1y",
+      "alpha": 0.050261,
+      "beta": 1.309316,
+      "r_squared": 0.568106,
+      "correlation": 0.753728,
+      "tracking_error": 0.214511,
+      "data_points": 249
+    }
+  },
+  "alpha.calculate_sharpe_ratio": {
+    "status": "ok",
+    "data": {
+      "tool": "SHARPE_RATIO_ANALYSIS",
+      "symbol": "AAPL",
+      "period": "1y",
+      "annual_return": 0.22604,
+      "annual_volatility": 0.326408,
+      "sharpe_ratio": 0.631237,
+      "sortino_ratio": 0.849194,
+      "max_drawdown": -0.333605,
+      "risk_free_rate": 0.02
+    }
+  },
+  "alpha.portfolio_optimization": {
+    "status": "ok",
+    "data": {
+      "tool": "PORTFOLIO_OPTIMIZATION",
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL"
+      ],
+      "period": "1y",
+      "method": "max_sharpe",
+      "weights": {
+        "AAPL": 0.0,
+        "MSFT": 0.044081,
+        "GOOGL": 0.955919
+      },
+      "expected_return": 0.496301,
+      "volatility": 0.317256,
+      "sharpe_ratio": 1.501312,
+      "risk_free_rate": 0.02
+    }
+  }
+}
