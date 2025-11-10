@@ -579,24 +579,15 @@ If a file isn't found:
                 
                 summary = vault.get_session_summary(session_id)
                 
-                if summary['file_count'] == 0:
-                    return f"📊 Session {session_id}: No files yet"
+               
                 
                 output = [
                     f"📊 Session Summary: {session_id}",
-                    "",
-                    f"Total: {summary['file_count']} files, {summary['total_mb']:.2f}MB",
-                    "",
-                    "By Directory:"
+                    "**Context Data (Directories with explanation)**",
+
                 ]
                 
-                for dir_name, stats in sorted(summary['directories'].items()):
-                    count = stats['count']
-                    size_kb = stats['size'] / 1024
-                    output.append(f"  {dir_name:<20} {count:>2} files, {size_kb:>8.1f}KB")
-                
                 output.append(f"""
-                                **Context Data (Directories with explanation)** :
                                 {context_data_loc}
                               """)
                 

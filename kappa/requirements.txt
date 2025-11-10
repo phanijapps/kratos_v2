@@ -1,0 +1,6 @@
+# Core financial data
+chromadb>=1.3.4
+networkx>=3.5.0 
+langchain-huggingface>1.0.0
+langchain-openai>=1.0.0
+pyyaml>=6.0

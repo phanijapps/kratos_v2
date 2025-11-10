@@ -377,16 +377,20 @@ class FileVault:
         self,
         file_path: str,
         namespace: str = "default",
-        session_id: Optional[str] = None
+        session_id: Optional[str] = None,
+        is_shared: bool = False
     ) -> Path:
         """Resolve where file should be stored on disk"""
         file_path = file_path.lstrip("/")
         
-        if session_id:
+
+        if is_shared:
+            storage_path = self.persistent_dir / file_path
+        elif session_id:
             storage_path = self.sessions_dir / session_id / file_path
-        else:
-            storage_path = self.persistent_dir / namespace / file_path
-        
+
+        print(f"Storage path {storage_path} is_shared={is_shared}")
+
         return storage_path
     
     
@@ -394,12 +398,13 @@ class FileVault:
             self,
             asset_type: str,
             namespace: str = "default",
-            session_id: Optional[str] = None
+            session_id: Optional[str] = None,
+            is_shared: bool = False
     ) -> str:
         if session_id:
             storage_path = Path(self.sessions_dir / session_id / asset_type)
-        else:
-            storage_path = Path(self.persistent_dir / namespace / asset_type)
+        elif is_shared:
+            storage_path = Path(self.persistent_dir / asset_type)
 
         print(f"Storage path {storage_path}")
         # Create parent directories
@@ -531,8 +536,8 @@ class FileVault:
         if is_shared: #Need a better startegy
             session_id = "shared"
 
-        storage_path = self._resolve_storage_path(file_path, namespace, session_id)
-        
+        storage_path = self._resolve_storage_path(file_path, namespace, session_id, is_shared=is_shared)
+
         if not storage_path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
         
@@ -597,10 +602,10 @@ class FileVault:
         Returns:
             List of file metadata dicts
         """
-        if is_shared:
-            session_id = "shared"
+       
         ns = namespace or "default"
-        base_dir = self.sessions_dir / session_id if session_id else self.persistent_dir / ns
+        base_dir = self.sessions_dir / session_id if not is_shared else self.persistent_dir
+
         if not base_dir.exists():
             return []
 
@@ -611,6 +616,8 @@ class FileVault:
             normalized_prefix = normalized_prefix.rstrip("/")
 
             target_path = base_dir / normalized_prefix.lstrip("/")
+
+            print(f"Target path: {target_path}")
             if target_path.is_file():
                 stat_result = target_path.stat()
                 virtual_path = normalized_prefix or "/"

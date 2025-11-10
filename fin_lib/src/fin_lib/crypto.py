@@ -458,14 +458,38 @@ def _cached_crypto_quote(symbol: str) -> Dict[str, Any]:
         fast_info = {}
     
     recent = history(symbol, interval="1d", period="5d", auto_adjust=False, include_actions=False)
+    recent_close = None
+    if not recent.empty:
+        try:
+            recent_close = float(recent["Close"].iloc[-1])
+        except Exception:
+            recent_close = None
+
+    def _fast(field: str, *aliases: str):
+        for key in (field, *aliases):
+            if key in fast_info:
+                return fast_info[key]
+        return None
+
     quote = {
         "symbol": symbol,
-        "price": fast_info.get("last_price"),
-        "currency": fast_info.get("currency", "USD"),
-        "previous_close": fast_info.get("previous_close"),
-        "regular_market_change": fast_info.get("regular_market_change"),
-        "regular_market_change_percent": fast_info.get("regular_market_change_percent"),
-        "regular_market_time": fast_info.get("regular_market_time"),
+        "price": _fast("last_price", "lastPrice", "regularMarketPrice") or recent_close,
+        "currency": _fast("currency") or "USD",
+        "previous_close": _fast("previous_close", "previousClose", "regularMarketPreviousClose"),
+        "open": _fast("open"),
+        "day_high": _fast("day_high", "dayHigh"),
+        "day_low": _fast("day_low", "dayLow"),
+        "last_volume": _fast("last_volume", "lastVolume"),
+        "ten_day_average_volume": _fast("ten_day_average_volume", "tenDayAverageVolume"),
+        "three_month_average_volume": _fast("three_month_average_volume", "threeMonthAverageVolume"),
+        "market_cap": _fast("market_cap", "marketCap"),
+        "shares": _fast("shares"),
+        "fifty_day_average": _fast("fifty_day_average", "fiftyDayAverage"),
+        "two_hundred_day_average": _fast("two_hundred_day_average", "twoHundredDayAverage"),
+        "year_high": _fast("year_high", "yearHigh"),
+        "year_low": _fast("year_low", "yearLow"),
+        "year_change": _fast("year_change", "yearChange"),
+        "timezone": _fast("timezone"),
     }
     return {"quote": quote, "recent": recent}
 

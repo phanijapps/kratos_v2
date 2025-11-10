@@ -1,10 +1,111 @@
-from typing import Iterable, List, Sequence
-
+from typing import Sequence
 from deepagents.graph import SubAgent
-from langchain.tools import BaseTool
 
-from kratos.subagents.registry import SubAgentSpec, ToolBinding, registry
-from kratos.subagents import specs  # noqa: F401  # ensure registration side-effects
+from kratos.subagents.prompts import NUM_NERD, THINKER, REPORTER
+from kratos.tools import SESSION_CODE_EXECUTOR, search_news, search_web
+
+from kappa.memkappa import MemKappa
+
+
+# --- 1. Initialize Embedding Model ---
+from langchain_ollama import OllamaEmbeddings
+my_embedding_model = OllamaEmbeddings(model="nomic-embed-text:latest")
+
+
+semantic_mem = MemKappa(
+    store_path="./.vault/memory", 
+    namespace="semantic",
+    embedding_function=my_embedding_model,  # Pass the object
+    config_path="kappa/config/semantic.yml"
+)
+
+episodic_mem = MemKappa(
+    store_path="./.vault/memory", 
+    namespace="episodic",
+    embedding_function=my_embedding_model,  # Pass the same object
+    config_path="kappa/config/episodic.yml"
+)
+
+semantic_ret_tool = semantic_mem.get_tool("retrieve", name="semantic_memory_retrieve")
+semantic_ingest_tool = semantic_mem.get_tool("ingest", name="semantic_memory_ingest")
+
+episodic_ret_tool = episodic_mem.get_tool("retrieve", name="episodic_memory_retrieve")
+episodic_ingest_tool = episodic_mem.get_tool("ingest", name="episodic_memory_ingest")
+
+
+SUBAGENTS = [
+    {
+        "name": "Nerd",
+        "description": "A highly intelligent subagent who excels at complex problem-solving and analytical thinking using python code.",
+        "prompt": NUM_NERD,
+        "tools": [SESSION_CODE_EXECUTOR, semantic_ret_tool, episodic_ret_tool, episodic_ingest_tool],
+        "output_format": {
+            "type": "flexible",
+            "options": [
+                {
+                    "format": "consolidated_report",
+                    "description": "Technical analysis report with signals and trading recommendations"
+                },
+                {
+                    "format": "report_with_instructions",
+                    "description": "Technical analysis with instructions for multi-timeframe confirmation or divergence studies"
+                },
+                {
+                    "format": "report_with_files",
+                    "description": "Technical indicator data exported to files with instructions for codeact agent to perform backtesting, signal optimization, or custom indicator development (e.g., processing MACD, SMA, RSI files for strategy testing)"
+                },
+                {
+                    "format": "report_with_files_and_instructions",
+                    "description": "Complete technical analysis package with indicator data files and instructions for strategy backtesting, parameter optimization, or machine learning feature engineering"
+                }
+            ]
+        }
+    },
+    {
+        "name": "Thinker",
+        "description": "A creative subagent who uses out-of-the-box thinking and performs financial analysis using output of number nerd subagent and tools available.",
+        "prompt": THINKER,
+        "tools": [search_web,search_news],
+        "output_format": {
+            "type": "flexible",
+            "options": [
+                {
+                    "format": "consolidated_report",
+                    "description": "Technical analysis report with signals and trading recommendations"
+                },
+                {
+                    "format": "report_with_instructions",
+                    "description": "Technical analysis with instructions for multi-timeframe confirmation or divergence studies"
+                },
+                {
+                    "format": "report_with_files",
+                    "description": "Technical indicator data exported to files with instructions for codeact agent to perform backtesting, signal optimization, or custom indicator development (e.g., processing MACD, SMA, RSI files for strategy testing)"
+                },
+                {
+                    "format": "report_with_files_and_instructions",
+                    "description": "Complete technical analysis package with indicator data files and instructions for strategy backtesting, parameter optimization, or machine learning feature engineering"
+                }
+            ]
+        }
+    },
+    {
+        "name": "Reporter",
+        "description": "A detail-oriented subagent who specializes in gathering information, summarizing data, and generating comprehensive reports using all available tools and the output of other subagents.",
+        "prompt": REPORTER,
+        "tools": [],
+        "output_format": {
+            "type": "rigid",
+            "options": [
+                {
+                    "format": "Final Report",
+                    "description": "A single, consolidated HTML/Markdown report integrating all session artifacts (text summaries, table excerpts, chart embeds/references, key metrics) with novice-friendly explanations, logical justifications, and risk-aligned recommendations. Include absolute paths to all non-embedded files for reference."
+                }
+            ]
+        }
+    }
+]
+
+
 
 
 ADDITIONAL_INSTRUCTIONS = """
@@ -83,54 +184,28 @@ When exporting files, use CSV or JSON format and clearly specify:
     return enhanced_prompt
 
 
-def get_financial_tools() -> list[BaseTool]:
-    """
-    Gets financial tools from local yfinance-based fin_tools module
-    """
-    from kratos.tools import TOOLS
-    return TOOLS
-
-
-def _tool_name(binding: ToolBinding) -> str:
-    return binding.id
-
-
-def list_subagent_specs(names: Iterable[str] | None = None) -> List[SubAgentSpec]:
-    """Return registered subagent specs, optionally filtered by name."""
-    return registry.list(names)
-
-
 def build_subagents(enabled: Sequence[str] | None = None) -> list[SubAgent]:
     """Build a list of financial subagents with enhanced prompts and tools.
 
     Args:
         enabled: Optional sequence of subagent names to include. Defaults to all.
     """
-    specs_to_build = list_subagent_specs(enabled)
-    subagents: list[SubAgent] = []
-    tools = get_financial_tools()
-    tool_map = {tool.name: tool for tool in tools}
+    subagents  = []
+    for spec in SUBAGENTS:
 
-    for spec in specs_to_build:
-        sub_agent_tool_names = [_tool_name(binding) for binding in spec.tools]
-
-        output_format = spec.output_format or {}
+        output_format = spec.get("output_format", {}) or {}
         enhanced_prompt = build_enhanced_system_prompt(
-            base_prompt=spec.prompt,
+            base_prompt=spec.get("prompt", ""),
             output_format=output_format,
             additional_instructions=ADDITIONAL_INSTRUCTIONS,
         )
 
-        matched_tools = [
-            tool_map[name] for name in sub_agent_tool_names if name in tool_map
-        ]
-
         subagents.append(
             SubAgent(
-                name=spec.name,
-                description=spec.description,
+                name=spec.get("name", ""),
+                description=spec.get("description", ""),
                 system_prompt=enhanced_prompt,
-                tools=matched_tools,
+                tools=spec.get("tools", []),
             )
         )
 
@@ -138,6 +213,5 @@ def build_subagents(enabled: Sequence[str] | None = None) -> list[SubAgent]:
 
 
 __all__ = [
-    "build_subagents",
-    "list_subagent_specs",
+    "build_subagents"
 ]

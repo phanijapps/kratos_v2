@@ -55,6 +55,7 @@ from .core import (
     get_bulk_quotes,
     search_symbols,
     get_market_status,
+    compare_symbols,
 )
 from .technical import (
     technical_analysis,
@@ -126,6 +127,7 @@ __all__ = [
     "get_bulk_quotes",
     "search_symbols",
     "get_market_status",
+    "compare_symbols",
     
     # Technical analysis
     "technical_analysis",

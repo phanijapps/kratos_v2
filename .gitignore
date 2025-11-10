@@ -21,7 +21,6 @@ poetry.lock
 # Pip tools caches
 .pip/
 .cache/
-.vault/
 
 # Logs and databases
 *.log
@@ -57,7 +56,11 @@ langchain.db
 .env.*
 .envrc
 *.secrets
-.vault
+.vault/sessions/*
+.vault/.metadata/*
+.vault/memory/episodic*
+.vault/memory/semantic*
+.vault/memory/*.graphml
 
 
 .yfinance_cache/

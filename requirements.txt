@@ -10,9 +10,14 @@ langmem
 langchain-mcp-adapters
 yfinance
 pandas-ta
+plotly
 pandas
 numpy
 matplotlib
 ddgs
 dotenv
 pytest
+mplfinance
+scipy
+langchain-huggingface>1.0.0
+sentence-transformers

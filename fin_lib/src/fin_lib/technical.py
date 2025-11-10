@@ -533,56 +533,350 @@ def _prepare_ta_context(data: pd.DataFrame) -> pd.DataFrame:
     })
 
 
+def _ensure_length(params: Dict[str, Any], default: int = 14) -> int:
+    """Validate and extract length/timeperiod style parameters."""
+    value = int(params.get("length", params.get("timeperiod", default)))
+    if value <= 0:
+        raise ToolExecutionError("Indicator length/timeperiod must be positive.")
+    return value
+
+
+def _series_indicator(func: Callable[[pd.Series, Dict[str, Any]], DataFrameLike]) -> Callable[..., DataFrameLike]:
+    """Wrap a close-price series indicator so it can run from the TA context."""
+
+    def _wrapped(context: pd.DataFrame, **params: Any) -> DataFrameLike:
+        return func(context["close"], params)
+
+    return _wrapped
+
+
+def _calc_sma(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.sma(series, length=_ensure_length(params, 20))
+
+
+def _calc_ema(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.ema(series, length=_ensure_length(params, 20))
+
+
+def _calc_wma(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.wma(series, length=_ensure_length(params, 20))
+
+
+def _calc_dema(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.dema(series, length=_ensure_length(params, 20))
+
+
+def _calc_tema(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.tema(series, length=_ensure_length(params, 20))
+
+
+def _calc_trima(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.trima(series, length=_ensure_length(params, 20))
+
+
+def _calc_kama(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    fast = params.get("fast", 2)
+    slow = params.get("slow", 30)
+    return ta.kama(series, length=_ensure_length(params, 10), fast=fast, slow=slow)
+
+
+def _calc_mama(context: pd.DataFrame, **params: Any) -> pd.DataFrame:
+    return ta.mama(
+        context["close"],
+        fastlimit=params.get("fastlimit", 0.5),
+        slowlimit=params.get("slowlimit", 0.05),
+    )
+
+
+def _calc_vwap(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.vwap(high=context["high"], low=context["low"], close=context["close"], volume=context["volume"])
+
+
+def _calc_t3(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.t3(series, length=_ensure_length(params, 20), vfactor=float(params.get("vfactor", 0.7)))
+
+
+def _calc_macd(context: pd.DataFrame, **params: Any) -> pd.DataFrame:
+    return ta.macd(
+        context["close"],
+        fast=params.get("fastperiod", 12),
+        slow=params.get("slowperiod", 26),
+        signal=params.get("signalperiod", 9),
+    )
+
+
+def _calc_macdext(context: pd.DataFrame, **params: Any) -> pd.DataFrame:
+    return ta.macd(
+        context[params.get("source", "close")],
+        fast=params.get("fastperiod", 12),
+        slow=params.get("slowperiod", 26),
+        signal=params.get("signalperiod", 9),
+    )
+
+
+def _calc_stoch(context: pd.DataFrame, **params: Any) -> pd.DataFrame:
+    return ta.stoch(
+        high=context["high"],
+        low=context["low"],
+        close=context["close"],
+        k=params.get("fastkperiod", 14),
+        d=params.get("slowkperiod", 3),
+        smooth_k=params.get("slowdperiod", 3),
+    )
+
+
+def _calc_stochf(context: pd.DataFrame, **params: Any) -> pd.DataFrame:
+    return ta.stochf(
+        high=context["high"],
+        low=context["low"],
+        close=context["close"],
+        k=params.get("fastkperiod", 14),
+        d=params.get("fastdperiod", 3),
+    )
+
+
+def _calc_rsi(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.rsi(series, length=_ensure_length(params, 14))
+
+
+def _calc_stochrsi(series: pd.Series, params: Dict[str, Any]) -> pd.DataFrame:
+    return ta.stochrsi(series, length=_ensure_length(params, 14))
+
+
+def _calc_willr(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.willr(high=context["high"], low=context["low"], close=context["close"], length=_ensure_length(params, 14))
+
+
+def _calc_adx(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.adx(high=context["high"], low=context["low"], close=context["close"], length=_ensure_length(params, 14))
+
+
+def _calc_adxr(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.adxr(high=context["high"], low=context["low"], close=context["close"], length=_ensure_length(params, 14))
+
+
+def _calc_apo(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.apo(series, fast=params.get("fastperiod", 12), slow=params.get("slowperiod", 26))
+
+
+def _calc_ppo(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.ppo(
+        series,
+        fast=params.get("fastperiod", 12),
+        slow=params.get("slowperiod", 26),
+        signal=params.get("signalperiod", 9),
+    )
+
+
+def _calc_mom(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.mom(series, length=_ensure_length(params, 10))
+
+
+def _calc_bop(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.bop(open_=context["open"], high=context["high"], low=context["low"], close=context["close"])
+
+
+def _calc_cci(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.cci(high=context["high"], low=context["low"], close=context["close"], length=_ensure_length(params, 20))
+
+
+def _calc_cmo(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.cmo(series, length=_ensure_length(params, 14))
+
+
+def _calc_roc(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.roc(series, length=_ensure_length(params, 10))
+
+
+def _calc_rocr(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.rocr(series, length=_ensure_length(params, 10))
+
+
+def _calc_aroon(context: pd.DataFrame, **params: Any) -> pd.DataFrame:
+    return ta.aroon(high=context["high"], low=context["low"], length=_ensure_length(params, 14))
+
+
+def _calc_aroonosc(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.aroonosc(high=context["high"], low=context["low"], length=_ensure_length(params, 14))
+
+
+def _calc_mfi(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.mfi(
+        high=context["high"],
+        low=context["low"],
+        close=context["close"],
+        volume=context["volume"],
+        length=_ensure_length(params, 14),
+    )
+
+
+def _calc_trix(series: pd.Series, params: Dict[str, Any]) -> pd.Series:
+    return ta.trix(series, length=_ensure_length(params, 15))
+
+
+def _calc_ultosc(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.uo(high=context["high"], low=context["low"], close=context["close"])
+
+
+def _calc_dx(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.dx(high=context["high"], low=context["low"], close=context["close"], length=_ensure_length(params, 14))
+
+
+def _calc_minus_di(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.minus_di(high=context["high"], low=context["low"], close=context["close"], length=_ensure_length(params, 14))
+
+
+def _calc_plus_di(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.plus_di(high=context["high"], low=context["low"], close=context["close"], length=_ensure_length(params, 14))
+
+
+def _calc_minus_dm(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.minus_dm(high=context["high"], low=context["low"], length=_ensure_length(params, 14))
+
+
+def _calc_plus_dm(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.plus_dm(high=context["high"], low=context["low"], length=_ensure_length(params, 14))
+
+
+def _calc_bbands(context: pd.DataFrame, **params: Any) -> pd.DataFrame:
+    length = _ensure_length(params, 20)
+    std = params.get("nbdevup", params.get("nbdevdn", 2))
+    return ta.bbands(context["close"], length=length, std=std)
+
+
+def _calc_midpoint(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.midpoint(context["close"], length=_ensure_length(params, 14))
+
+
+def _calc_midprice(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.midprice(high=context["high"], low=context["low"], length=_ensure_length(params, 14))
+
+
+def _calc_sar(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.psar(high=context["high"], low=context["low"], close=context["close"])
+
+
+def _calc_trange(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.true_range(high=context["high"], low=context["low"], close=context["close"])
+
+
+def _calc_atr(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.atr(high=context["high"], low=context["low"], close=context["close"], length=_ensure_length(params, 14))
+
+
+def _calc_natr(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.natr(high=context["high"], low=context["low"], close=context["close"], length=_ensure_length(params, 14))
+
+
+def _calc_ad(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.ad(high=context["high"], low=context["low"], close=context["close"], volume=context["volume"])
+
+
+def _calc_adosc(context: pd.DataFrame, **params: Any) -> pd.Series:
+    fast = params.get("fastperiod", 3)
+    slow = params.get("slowperiod", 10)
+    return ta.adosc(
+        high=context["high"],
+        low=context["low"],
+        close=context["close"],
+        volume=context["volume"],
+        fast=fast,
+        slow=slow,
+    )
+
+
+def _calc_obv(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.obv(close=context["close"], volume=context["volume"])
+
+
+def _calc_ht_trendline(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.ht_trendline(context["close"])
+
+
+def _calc_ht_sine(context: pd.DataFrame, **params: Any) -> pd.DataFrame:
+    return ta.ht_sine(context["close"])
+
+
+def _calc_ht_trendmode(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.ht_trendmode(context["close"])
+
+
+def _calc_ht_dcperiod(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.ht_dcperiod(context["close"])
+
+
+def _calc_ht_dcphase(context: pd.DataFrame, **params: Any) -> pd.Series:
+    return ta.ht_dcphase(context["close"])
+
+
+def _calc_ht_phasor(context: pd.DataFrame, **params: Any) -> pd.DataFrame:
+    return ta.ht_phasor(context["close"])
+
+
+_TECHNICAL_DISPATCH: Dict[str, Callable[..., DataFrameLike]] = {
+    "SMA": _series_indicator(_calc_sma),
+    "EMA": _series_indicator(_calc_ema),
+    "WMA": _series_indicator(_calc_wma),
+    "DEMA": _series_indicator(_calc_dema),
+    "TEMA": _series_indicator(_calc_tema),
+    "TRIMA": _series_indicator(_calc_trima),
+    "KAMA": _series_indicator(_calc_kama),
+    "MAMA": _calc_mama,
+    "VWAP": _calc_vwap,
+    "T3": _series_indicator(_calc_t3),
+    "MACD": _calc_macd,
+    "MACDEXT": _calc_macdext,
+    "STOCH": _calc_stoch,
+    "STOCHF": _calc_stochf,
+    "RSI": _series_indicator(_calc_rsi),
+    "STOCHRSI": _series_indicator(_calc_stochrsi),
+    "WILLR": _calc_willr,
+    "ADX": _calc_adx,
+    "ADXR": _calc_adxr,
+    "APO": _series_indicator(_calc_apo),
+    "PPO": _series_indicator(_calc_ppo),
+    "MOM": _series_indicator(_calc_mom),
+    "BOP": _calc_bop,
+    "CCI": _calc_cci,
+    "CMO": _series_indicator(_calc_cmo),
+    "ROC": _series_indicator(_calc_roc),
+    "ROCR": _series_indicator(_calc_rocr),
+    "AROON": _calc_aroon,
+    "AROONOSC": _calc_aroonosc,
+    "MFI": _calc_mfi,
+    "TRIX": _series_indicator(_calc_trix),
+    "ULTOSC": _calc_ultosc,
+    "DX": _calc_dx,
+    "MINUS_DI": _calc_minus_di,
+    "PLUS_DI": _calc_plus_di,
+    "MINUS_DM": _calc_minus_dm,
+    "PLUS_DM": _calc_plus_dm,
+    "BBANDS": _calc_bbands,
+    "MIDPOINT": _calc_midpoint,
+    "MIDPRICE": _calc_midprice,
+    "SAR": _calc_sar,
+    "TRANGE": _calc_trange,
+    "ATR": _calc_atr,
+    "NATR": _calc_natr,
+    "AD": _calc_ad,
+    "ADOSC": _calc_adosc,
+    "OBV": _calc_obv,
+    "HT_TRENDLINE": _calc_ht_trendline,
+    "HT_SINE": _calc_ht_sine,
+    "HT_TRENDMODE": _calc_ht_trendmode,
+    "HT_DCPERIOD": _calc_ht_dcperiod,
+    "HT_DCPHASE": _calc_ht_dcphase,
+    "HT_PHASOR": _calc_ht_phasor,
+}
+
+
 def _calculate_indicator(indicator: str, context: pd.DataFrame, **params) -> DataFrameLike:
     """Calculate specific technical indicator."""
     indicator = indicator.upper()
-    
-    # Common parameters
-    length = params.get('length', params.get('timeperiod', 14))
-    
-    if indicator == 'RSI':
-        return ta.rsi(context['close'], length=length)
-    elif indicator == 'MACD':
-        return ta.macd(
-            context['close'],
-            fast=params.get('fastperiod', 12),
-            slow=params.get('slowperiod', 26),
-            signal=params.get('signalperiod', 9)
-        )
-    elif indicator == 'SMA':
-        return ta.sma(context['close'], length=params.get('length', 20))
-    elif indicator == 'EMA':
-        return ta.ema(context['close'], length=params.get('length', 20))
-    elif indicator == 'BBANDS':
-        return ta.bbands(
-            context['close'],
-            length=params.get('length', 20),
-            std=params.get('nbdevup', params.get('nbdevdn', 2))
-        )
-    elif indicator == 'ATR':
-        return ta.atr(context['high'], context['low'], context['close'], length=length)
-    elif indicator == 'OBV':
-        return ta.obv(context['close'], context['volume'])
-    elif indicator == 'STOCH':
-        return ta.stoch(
-            context['high'],
-            context['low'],
-            context['close'],
-            k=params.get('fastkperiod', 14),
-            d=params.get('slowkperiod', 3)
-        )
-    elif indicator == 'ADX':
-        return ta.adx(context['high'], context['low'], context['close'], length=length)
-    elif indicator == 'CCI':
-        return ta.cci(context['high'], context['low'], context['close'], length=params.get('length', 20))
-    elif indicator == 'WILLR':
-        return ta.willr(context['high'], context['low'], context['close'], length=length)
-    elif indicator == 'MFI':
-        return ta.mfi(
-            context['high'], context['low'], context['close'], context['volume'], length=length
-        )
-    else:
+    calculator = _TECHNICAL_DISPATCH.get(indicator)
+    if calculator is None:
         raise ToolExecutionError(f"Unsupported indicator: {indicator}")
+    return calculator(context, **params)
 
 
 # Export main functions

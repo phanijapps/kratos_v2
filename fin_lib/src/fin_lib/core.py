@@ -364,18 +364,44 @@ def _cached_quote(symbol: str) -> Dict[str, Any]:
     ticker = get_ticker(symbol)
     try:
         fast_info = dict(ticker.fast_info)
-    except Exception:
+    except Exception as exc:
+        print(f"[get_quote] fast_info unavailable for {symbol}: {exc}")
         fast_info = {}
-    
+
+    def _fast(field: str, *aliases: str) -> Any:
+        """Lookup helper that tries multiple key variants in fast_info."""
+        for key in (field, *aliases):
+            if key in fast_info:
+                return fast_info[key]
+        return None
+
     latest = history(symbol, interval="1d", period="5d", auto_adjust=False)
+    latest_close = None
+    if not latest.empty:
+        try:
+            latest_close = float(latest["Close"].iloc[-1])
+        except Exception:
+            latest_close = None
+
     quote = {
         "symbol": symbol,
-        "price": fast_info.get("last_price"),
-        "currency": fast_info.get("currency"),
-        "previous_close": fast_info.get("previous_close"),
-        "regular_market_change": fast_info.get("regular_market_change"),
-        "regular_market_change_percent": fast_info.get("regular_market_change_percent"),
-        "regular_market_time": fast_info.get("regular_market_time"),
+        "price": _fast("last_price", "lastPrice", "regularMarketPrice") or latest_close,
+        "currency": _fast("currency"),
+        "previous_close": _fast("previous_close", "previousClose", "regularMarketPreviousClose"),
+        "open": _fast("open"),
+        "day_high": _fast("day_high", "dayHigh"),
+        "day_low": _fast("day_low", "dayLow"),
+        "last_volume": _fast("last_volume", "lastVolume"),
+        "ten_day_average_volume": _fast("ten_day_average_volume", "tenDayAverageVolume"),
+        "three_month_average_volume": _fast("three_month_average_volume", "threeMonthAverageVolume"),
+        "market_cap": _fast("market_cap", "marketCap"),
+        "shares": _fast("shares"),
+        "fifty_day_average": _fast("fifty_day_average", "fiftyDayAverage"),
+        "two_hundred_day_average": _fast("two_hundred_day_average", "twoHundredDayAverage"),
+        "year_high": _fast("year_high", "yearHigh"),
+        "year_low": _fast("year_low", "yearLow"),
+        "year_change": _fast("year_change", "yearChange"),
+        "timezone": _fast("timezone"),
     }
     return {"quote": quote, "latest": latest.tail(1)}
 

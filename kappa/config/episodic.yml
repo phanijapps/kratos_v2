@@ -1,0 +1,33 @@
+namespace: episodic
+vector_store:
+  collection_suffix: episodic
+ingestors:
+  learning_episode:
+    vector:
+      text_fields:
+        - episode.task
+        - episode.context
+        - episode.resolution
+        - episode.reflection
+      metadata:
+        session_id: episode.id
+        outcome: episode.outcome
+    graph:
+      nodes:
+        - id: session
+          type: Session
+          key: episode.id
+          attributes:
+            task: episode.task
+            context: episode.context
+            resolution: episode.resolution
+            outcome: episode.outcome
+        - id: reflection
+          type: Reflection
+          key: episode.id
+          attributes:
+            insight: episode.reflection
+      edges:
+        - source: session
+          target: reflection
+          label: PRODUCED_REFLECTION
