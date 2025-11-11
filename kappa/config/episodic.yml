@@ -1,3 +1,45 @@
+retrieve_doc: |
+  Use 'episodic_retrieve' *before* running a task to see if you've made a mistake 
+  or learned a better way in the past. You can query with a task description 
+  or an error message.
+  Example Query 1: "Plot SMA for AAPL"
+  Example Query 2: "NameError: 'plt' not defined"
+  
+ingestion_doc: |
+  Use 'episodic_ingest' *after* completing a task to save your experience. 
+  Choose the ingestor that matches what happened.
+
+  Ingestor 1: "learning_episode"
+  Usage: Use this for general reflections and successful tasks. It links a 'session' to its 'reflection'.
+  Payload Example:
+    payload = {
+        "episode": {
+            "id": "session-unique-id-123",
+            "task": "Plot SMA for AAPL",
+            "context": "User asked for 50-day window",
+            "resolution": "import pandas_ta as ta...",
+            "reflection": "Using pandas_ta was very efficient.",
+            "outcome": "success"
+        }
+    }
+
+  Ingestor 2: "self_healing_episode"
+  Usage: Use this *specifically* when you failed, debugged, and fixed an error. It links a 'failure' to its 'solution'.
+  Payload Example:
+    payload = {
+        "failure": {
+            "id": "fail-session-id-456",
+            "task": "Plot SMA for AAPL",
+            "failed_code": "df.plot()",
+            "error_message": "NameError: 'plt' not defined"
+        },
+        "solution": {
+            "id": "solution-for-456",
+            "fixed_code": "import matplotlib.pyplot as plt\ndf.plot()",
+            "outcome": "success"
+        }
+    }
+
 namespace: episodic
 vector_store:
   collection_suffix: episodic
@@ -31,3 +73,32 @@ ingestors:
         - source: session
           target: reflection
           label: PRODUCED_REFLECTION
+  
+  self_healing_episode:
+    vector:
+      text_fields:
+        - failure.task
+        - failure.error_message
+        - solution.fixed_code
+      metadata:
+        outcome: solution.outcome
+        task: failure.task
+    graph:
+      nodes:
+        - id: failure_node
+          type: Failure
+          key: failure.id
+          attributes:
+            task: failure.task
+            failed_code: failure.failed_code
+            error_message: failure.error_message
+        - id: solution_node
+          type: Solution
+          key: solution.id
+          attributes:
+            fixed_code: solution.fixed_code
+            outcome: outcome
+      edges:
+        - source: failure_node
+          target: solution_node
+          label: IS_FIXED_BY

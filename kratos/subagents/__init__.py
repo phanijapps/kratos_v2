@@ -3,34 +3,7 @@ from deepagents.graph import SubAgent
 
 from kratos.subagents.prompts import NUM_NERD, THINKER, REPORTER
 from kratos.tools import SESSION_CODE_EXECUTOR, search_news, search_web
-
-from kappa.memkappa import MemKappa
-
-
-# --- 1. Initialize Embedding Model ---
-from langchain_ollama import OllamaEmbeddings
-my_embedding_model = OllamaEmbeddings(model="nomic-embed-text:latest")
-
-
-semantic_mem = MemKappa(
-    store_path="./.vault/memory", 
-    namespace="semantic",
-    embedding_function=my_embedding_model,  # Pass the object
-    config_path="kappa/config/semantic.yml"
-)
-
-episodic_mem = MemKappa(
-    store_path="./.vault/memory", 
-    namespace="episodic",
-    embedding_function=my_embedding_model,  # Pass the same object
-    config_path="kappa/config/episodic.yml"
-)
-
-semantic_ret_tool = semantic_mem.get_tool("retrieve", name="semantic_memory_retrieve")
-semantic_ingest_tool = semantic_mem.get_tool("ingest", name="semantic_memory_ingest")
-
-episodic_ret_tool = episodic_mem.get_tool("retrieve", name="episodic_memory_retrieve")
-episodic_ingest_tool = episodic_mem.get_tool("ingest", name="episodic_memory_ingest")
+from kratos.tools.memory import semantic_memory_ingest, semantic_memory_retrieve, episodic_memory_ingest, episodic_memory_retrieve
 
 
 SUBAGENTS = [
@@ -38,7 +11,7 @@ SUBAGENTS = [
         "name": "Nerd",
         "description": "A highly intelligent subagent who excels at complex problem-solving and analytical thinking using python code.",
         "prompt": NUM_NERD,
-        "tools": [SESSION_CODE_EXECUTOR, semantic_ret_tool, episodic_ret_tool, episodic_ingest_tool],
+        "tools": [SESSION_CODE_EXECUTOR, semantic_memory_retrieve, episodic_memory_retrieve, episodic_memory_ingest],
         "output_format": {
             "type": "flexible",
             "options": [
@@ -57,6 +30,11 @@ SUBAGENTS = [
                 {
                     "format": "report_with_files_and_instructions",
                     "description": "Complete technical analysis package with indicator data files and instructions for strategy backtesting, parameter optimization, or machine learning feature engineering"
+                },
+                {
+                    "format": "episodic_memory_update_JSON",
+                    "description": "List of episodes that include key learnings, code snippets, and observations to be stored in episodic memory for future reference"
+
                 }
             ]
         }
@@ -92,7 +70,7 @@ SUBAGENTS = [
         "name": "Reporter",
         "description": "A detail-oriented subagent who specializes in gathering information, summarizing data, and generating comprehensive reports using all available tools and the output of other subagents.",
         "prompt": REPORTER,
-        "tools": [],
+        "tools": [episodic_memory_retrieve, episodic_memory_ingest],
         "output_format": {
             "type": "rigid",
             "options": [

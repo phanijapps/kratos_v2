@@ -8,6 +8,7 @@ from kratos.subagents import build_subagents
 
 from kratos.llm_factory import ModelProvider, LLMFactory
 from kratos.prompts import KAI_RAJA_KAI_PROMPT
+from kratos.tools.memory import semantic_memory_ingest, episodic_memory_ingest
 
 @tool(description="Gets Current System Date Time")
 def get_current_date_time() -> str:
@@ -33,7 +34,7 @@ def get_fin_graph():
     subagents = build_subagents()
     return create_deep_agent(
         system_prompt=KAI_RAJA_KAI_PROMPT,
-        tools=[get_current_date_time],
+        tools=[get_current_date_time, semantic_memory_ingest],
         model=model, 
         subagents=subagents, 
         use_longterm_memory=True

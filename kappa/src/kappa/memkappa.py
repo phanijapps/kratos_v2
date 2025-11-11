@@ -72,6 +72,8 @@ class MemKappa:
         self.graph_path = os.path.join(store_path, f"{namespace}_graph.graphml")
         self.graph = self._load_graph()
         self._ingest_schema = self._build_ingest_schema()
+        self.retrieve_doc = self.config.get("retrieve_doc", f"Retrieves {self.namespace} memory.")
+        self.ingest_doc = self.config.get("ingestion_doc", f"Ingests {self.namespace} memory.")
 
     @staticmethod
     def _load_config(path: str) -> Dict[str, Any]:
@@ -214,7 +216,7 @@ class MemKappa:
 
             @tool(
                 tool_name,
-                description=f"Used to retrieve {self.namespace}  memory entries relevant to the task description.",
+                description=f"{self.retrieve_doc}",
                 args_schema=retrieve_schema,
             )
             def retrieve_tool(new_task_description: str) -> str:
@@ -234,7 +236,7 @@ class MemKappa:
 
             @tool(
                 tool_name,
-                description=f"Save {self.namespace} memory for domain specific purposes.",
+                description=f"{self.ingest_doc}",
                 args_schema=schema,
             )
             def ingest_tool(ingestor, payload: Dict[str, Any]) -> str:  # type: ignore[valid-type]
