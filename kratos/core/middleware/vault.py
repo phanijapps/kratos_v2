@@ -12,7 +12,7 @@ Features:
 """
 
 import os
-import platform
+import anyio
 import json
 import sqlite3
 from pathlib import Path
@@ -121,6 +121,7 @@ class FileVault:
                 last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 file_count INTEGER DEFAULT 0,
                 total_bytes INTEGER DEFAULT 0,
+                ticker TEXT,
                 purpose TEXT,
                 status TEXT DEFAULT 'active'
             )
@@ -417,7 +418,31 @@ class FileVault:
         storage_path.mkdir(exist_ok=True)
         
         return storage_path.as_posix()
+    
+    async def get_storage_dir_path_async(
+        self,
+        asset_type: str,
+        namespace: str = "default",
+        session_id: Optional[str] = None,
+        is_shared: bool = False
+    ) -> str:
+        """Async-safe version using anyio."""
         
+        def _ensure_dirs():
+            if session_id:
+                storage_path = Path(self.sessions_dir / session_id / asset_type)
+            elif is_shared:
+                storage_path = Path(self.persistent_dir / asset_type)
+            else:
+                storage_path = Path(self.persistent_dir / namespace / asset_type)
+
+            storage_path.parent.mkdir(parents=True, exist_ok=True)
+            storage_path.mkdir(exist_ok=True)
+            return storage_path.as_posix()
+
+        # Run sync directory ops in a thread
+        return await anyio.to_thread.run_sync(_ensure_dirs)
+            
     
     def get_pwd(
         self,

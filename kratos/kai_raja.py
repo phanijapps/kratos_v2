@@ -1,10 +1,11 @@
+import logging
 from deepagents import SubAgent
 from langchain.tools import tool
 import datetime
 
 from kratos.core.graph import create_deep_agent
 from kratos.subagents import build_subagents
-
+from kratos.core.middleware.logging_middleware import LoggingMiddleware
 
 from kratos.llm_factory import ModelProvider, LLMFactory
 from kratos.prompts import KAI_RAJA_KAI_PROMPT
@@ -38,7 +39,8 @@ def get_fin_graph():
         tools=[get_current_date_time, semantic_memory_ingest, semantic_memory_lookup],
         model=model, 
         subagents=subagents, 
-        use_longterm_memory=True
+        use_longterm_memory=True,
+        middleware=[LoggingMiddleware(log_level=logging.INFO, agent_name="kai_raja_agent")],
     )
 
 kai = get_fin_graph()

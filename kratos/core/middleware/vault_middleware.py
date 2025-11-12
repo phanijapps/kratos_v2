@@ -24,6 +24,7 @@ import re
 import fnmatch
 import time
 from pathlib import Path
+import asyncio
 
 # Import FileVault
 from kratos.core.middleware.vault import FileVault
@@ -448,7 +449,7 @@ If a file isn't found:
                     namespace, session_id = get_state(runtime.state)
                 else:
                     namespace, session_id = "default", None
-                
+
                 location = vault.get_storage_dir_path(asset_type=asset_type, namespace=namespace, session_id=session_id)
                 print(f"Location is {location}")
                 return location
@@ -837,7 +838,7 @@ If a file isn't found:
         tools = [ls, read_file, pwd, write_file, edit_file, get_session_summary, glob_search, grep_search]
         return tools
     
-    def before_agent(self, state: AgentState, runtime: Any) -> Optional[Dict[str, Any]]:
+    async def abefore_agent(self, state: AgentState, runtime: Any) -> Optional[Dict[str, Any]]:
         """Initialize FileVault state"""
         updates = {}
         
@@ -857,22 +858,22 @@ If a file isn't found:
             print("updating context data_loca")
             updates["context_data_loc"]=[
             ContextPath(relative_path="/code", 
-                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="code"),
+                        absolute_path= await self.vault.get_storage_dir_path_async(session_id=self.session_id,asset_type="code"),
                         description="Location where ananlysis Python or r-base code is saved"),
             ContextPath(relative_path="/charts", 
-                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="charts"),
+                        absolute_path= await self.vault.get_storage_dir_path_async(session_id=self.session_id,asset_type="charts"),
                         description="Location where Charts png files are saved."),
             ContextPath(relative_path="/reports", 
-                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="reports"),
+                        absolute_path= await self.vault.get_storage_dir_path_async(session_id=self.session_id,asset_type="reports"),
                         description="Location where reports are saved"),
             ContextPath(relative_path="/data", 
-                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="data"),
+                        absolute_path= await self.vault.get_storage_dir_path_async(session_id=self.session_id,asset_type="data"),
                         description="Location where data from tool calls are saved"),
             ContextPath(relative_path="/analysis", 
-                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="analysis"),
+                        absolute_path= await self.vault.get_storage_dir_path_async(session_id=self.session_id,asset_type="analysis"),
                         description="Location where agent analysis is stored"),
             ContextPath(relative_path="/tool_results", 
-                        absolute_path= self.vault.get_storage_dir_path(session_id=self.session_id,asset_type="tool_results"),
+                        absolute_path= await self.vault.get_storage_dir_path_async(session_id=self.session_id,asset_type="tool_results"),
                         description="Location where Large tool results are saved.")
           
         ]

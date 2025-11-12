@@ -1,6 +1,7 @@
+import logging
 from typing import Sequence
 from deepagents.graph import SubAgent
-
+from kratos.core.middleware.logging_middleware import LoggingMiddleware
 from kratos.subagents.prompts import NUM_NERD, THINKER, REPORTER
 from kratos.tools import SESSION_CODE_EXECUTOR, search_news, search_web
 from kratos.tools.memory import semantic_memory_ingest, semantic_memory_retrieve, episodic_memory_ingest, episodic_memory_retrieve, semantic_memory_lookup, episodic_memory_lookup
@@ -177,13 +178,15 @@ def build_subagents(enabled: Sequence[str] | None = None) -> list[SubAgent]:
             output_format=output_format,
             additional_instructions=ADDITIONAL_INSTRUCTIONS,
         )
+        subagent_name = spec.get("name", "")
 
         subagents.append(
             SubAgent(
-                name=spec.get("name", ""),
+                name=subagent_name,
                 description=spec.get("description", ""),
                 system_prompt=enhanced_prompt,
                 tools=spec.get("tools", []),
+                middleware=[LoggingMiddleware(log_level=logging.INFO, agent_name=subagent_name)]
             )
         )
 
