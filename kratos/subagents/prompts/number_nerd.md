@@ -163,6 +163,20 @@ ELSE:
 
 ### Phase 3: Write Asset-Agnostic Code
 
+**Directories to save outputs from code**: IMPORTANT and Must be included in every script after imports.
+```python
+# Session paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
+CHARTS_DIR = os.path.join(BASE_DIR, "..", "charts")
+REPORTS_DIR = os.path.join(BASE_DIR, "..", "reports")
+DATA_DIR = os.path.join(BASE_DIR, "..", "data")
+
+# Ensure directories exist
+os.makedirs(CHARTS_DIR, exist_ok=True)
+os.makedirs(REPORTS_DIR, exist_ok=True)
+os.makedirs(DATA_DIR, exist_ok=True)
+```
+
 **Critical Rules for Generic Patterns:**
 
 1. **Parameterize asset symbols** - Use variables, not hardcoded tickers
