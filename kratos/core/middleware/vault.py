@@ -12,6 +12,7 @@ Features:
 """
 
 import os
+import platform
 import json
 import sqlite3
 from pathlib import Path
@@ -50,7 +51,8 @@ class FileVault:
             max_session_size_mb: Warn when session exceeds this size
             enable_versioning: Keep file version history (requires SQLite)
         """
-        self.workspace_dir = Path(workspace_dir)
+        
+        self.workspace_dir = Path(workspace_dir).resolve()
         self.use_sqlite = use_sqlite
         self.auto_cleanup_days = auto_cleanup_days
         self.max_session_size_mb = max_session_size_mb
@@ -385,13 +387,13 @@ class FileVault:
         
 
         if is_shared:
-            storage_path = self.persistent_dir / file_path
+            storage_path = Path(self.persistent_dir / file_path)
         elif session_id:
-            storage_path = self.sessions_dir / session_id / file_path
+            storage_path = Path(self.sessions_dir / session_id / file_path)
 
-        print(f"Storage path {storage_path} is_shared={is_shared}")
+        logger.info(f"Storage path {storage_path} is_shared={is_shared}")
 
-        return storage_path
+        return storage_path.as_posix()
     
     
     def get_storage_dir_path(
@@ -406,13 +408,12 @@ class FileVault:
         elif is_shared:
             storage_path = Path(self.persistent_dir / asset_type)
 
-        print(f"Storage path {storage_path}")
+        logger.info(f"Storage path {storage_path}")
         # Create parent directories
         storage_path.parent.mkdir(parents=True, exist_ok=True)
         storage_path.mkdir(exist_ok=True)
-        #os.makedirs(clean_path,exist_ok=True)
         
-        return str(storage_path)
+        return storage_path.as_posix()
         
     
     def get_pwd(

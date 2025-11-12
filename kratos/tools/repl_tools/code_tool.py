@@ -5,6 +5,7 @@ from dataclasses import dataclass, field as dataclass_field
 from typing import Any, List, Dict, Optional
 import subprocess
 import time
+import sys
 
 
 # Define Pydantic schema for tool arguments
@@ -72,6 +73,7 @@ def session_code_executor(py_file_name: str,
     
     py_file_path = f"{code_path}/{py_file_name}"
     print(f"Trying to Execute {py_file_path}")
+    print(f"Using Python interpreter: {sys.executable}")
 
     start_time = time.time()
     
