@@ -80,7 +80,7 @@ def session_code_executor(py_file_name: str,
     try:
         # Run the Python file as a subprocess with timeout
         result = subprocess.run(
-            ['python', py_file_path],
+            [sys.executable, py_file_path],
             capture_output=True,
             text=True,
             timeout=30,
