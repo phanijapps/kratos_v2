@@ -1,43 +1,45 @@
 retrieve_doc: |
   Use 'episodic_retrieve' *before* running a task to see if you've made a mistake 
-  or learned a better way in the past. You can query with a task description 
-  or an error message.
+  or learned a better way in the past. You can query with a task description, 
+  error message, or for a specific code pattern.
   Example Query 1: "Plot SMA for AAPL"
   Example Query 2: "NameError: 'plt' not defined"
+  Example Query 3: "Code snippet for calculating RSI"
   
 ingestion_doc: |
-  Use 'episodic_ingest' *after* completing a task to save your experience. 
-  Choose the ingestor that matches what happened.
-
-  Ingestor 1: "learning_episode"
-  Usage: Use this for general reflections and successful tasks. It links a 'session' to its 'reflection'.
+  Use 'episodic_ingest' *after* completing a task to save your experience.
+  
+  This ingestor is for "learning_episode":
+  Usage: Use this for general reflections and successful tasks. It links a 'session' 
+         to its 'reflection'. 
+  
+  **Crucially**, if you provide the optional "pattern" object, it will also 
+  create a new, reusable "CodePattern" node from your resolution. This is 
+  the primary way the agent learns new code.
+  
   Payload Example:
     payload = {
-        "episode": {
+        "session": {
             "id": "session-unique-id-123",
             "task": "Plot SMA for AAPL",
             "context": "User asked for 50-day window",
-            "resolution": "import pandas_ta as ta...",
-            "reflection": "Using pandas_ta was very efficient.",
+            "resolution": "import pandas_ta as ta; df['SMA'] = df.ta.sma(50)",
             "outcome": "success"
-        }
-    }
-
-  Ingestor 2: "self_healing_episode"
-  Usage: Use this *specifically* when you failed, debugged, and fixed an error. It links a 'failure' to its 'solution'.
-  Payload Example:
-    payload = {
-        "failure": {
-            "id": "fail-session-id-456",
-            "task": "Plot SMA for AAPL",
-            "failed_code": "df.plot()",
-            "error_message": "NameError: 'plt' not defined"
         },
-        "solution": {
-            "id": "solution-for-456",
-            "fixed_code": "import matplotlib.pyplot as plt\ndf.plot()",
-            "outcome": "success"
-        }
+        "reflection": {
+            "id": "reflection-on-123",
+            "insight": "Using pandas_ta was very efficient for SMA."
+        },
+        // --- OPTIONAL: Provide this to create a new code pattern ---
+        "pattern": {
+            "id": "pandas_ta_sma_pattern_001",
+            "name": "Calculate SMA with pandas_ta",
+            "code_fragment": "import pandas_ta as ta\ndf['SMA'] = df.ta.sma(length=50)",
+            "language": "python",
+            "description": "Calculates SMA using pandas_ta and assigns it to a new column."
+        },
+        // --- Optional: Link to other existing nodes ---
+        "linked_tools": ["pandas_ta_tool", "matplotlib_tool"]
     }
 
 namespace: episodic
@@ -47,58 +49,72 @@ ingestors:
   learning_episode:
     vector:
       text_fields:
-        - episode.task
-        - episode.context
-        - episode.resolution
-        - episode.reflection
+        - session.task
+        - session.context
+        - session.resolution
+        - reflection.insight
+        # Make the code pattern searchable
+        - pattern.name
+        - pattern.description
+        - pattern.code_fragment
       metadata:
-        session_id: episode.id
-        outcome: episode.outcome
+        session_id: session.id
+        reflection_id: reflection.id
+        pattern_id: pattern.id
+        outcome: session.outcome
     graph:
       nodes:
+        # Node 1: The session (what was done)
         - id: session
           type: Session
-          key: episode.id
+          key: session.id
           attributes:
-            task: episode.task
-            context: episode.context
-            resolution: episode.resolution
-            outcome: episode.outcome
+            task: session.task
+            context: session.context
+            resolution: session.resolution
+            outcome: session.outcome
+            
+        # Node 2: The reflection (what was learned)
         - id: reflection
           type: Reflection
-          key: episode.id
+          key: reflection.id
           attributes:
-            insight: episode.reflection
+            insight: reflection.insight
+            
+        # Node 3: The reusable code fragment (the new learning)
+        - id: pattern
+          type: CodePattern
+          key: pattern.id
+          attributes:
+            name: pattern.name
+            code_fragment: pattern.code_fragment
+            language: pattern.language
+            description: pattern.description
+            
       edges:
+        # Edge 1: Links the session to its reflection
         - source: session
           target: reflection
           label: PRODUCED_REFLECTION
-  
-  self_healing_episode:
-    vector:
-      text_fields:
-        - failure.task
-        - failure.error_message
-        - solution.fixed_code
-      metadata:
-        outcome: solution.outcome
-        task: failure.task
-    graph:
-      nodes:
-        - id: failure_node
-          type: Failure
-          key: failure.id
-          attributes:
-            task: failure.task
-            failed_code: failure.failed_code
-            error_message: failure.error_message
-        - id: solution_node
-          type: Solution
-          key: solution.id
-          attributes:
-            fixed_code: solution.fixed_code
-            outcome: outcome
-      edges:
-        - source: failure_node
-          target: solution_node
-          label: IS_FIXED_BY
+          
+        # Edge 2: Links the session to the code it generated
+        - source: session
+          target: pattern
+          label: EXTRACTED_PATTERN
+          
+        # Edge 3: Links the reflection to the code it explains
+        - source: reflection
+          target: pattern
+          label: EXPLAINS_PATTERN
+
+        # --- Hybrid Edges for Agent Learning ---
+          
+        # Edge 4: Links session to existing tools it used
+        - source: session
+          target_key: linked_tools
+          label: USES_TOOL
+          
+        # Edge 5: Links session to other existing reflections
+        - source: session
+          target_key: linked_reflections
+          label: WAS_INFORMED_BY

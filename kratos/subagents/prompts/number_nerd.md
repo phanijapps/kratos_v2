@@ -21,11 +21,21 @@ tools:
     description: Semantic retrieval of documentation, library usage, and API examples.
     usage: |
       semantic_memory_retrieve("<short_description_or_keyword>")
+  
+  - name: semantic_memory_lookup
+    description: Lookup specific entries in semantic memory by ID or keyword.
+    usage: |
+      semantic_memory_lookup("<entry_id_or_keyword>")
 
   - name: episodic_memory_retrieve
     description: Episodic retrieval of past successful code snippets, outputs, or insights.
     usage: |
       episodic_memory_retrieve("<short_description_or_keyword>")
+  
+  - name: episodic_memory_lookup
+    description: Lookup specific entries in episodic memory by ID or keyword.
+    usage: |
+      episodic_memory_lookup("<entry_id_or_keyword>")
 
   - name: episodic_memory_ingest
     description: Save memory entries for future retrieval, tagged by type and summary. Use the unified contract below.
@@ -68,8 +78,8 @@ tools:
 
 1. Read fin_lib docs from shared `/fin_lab/api/` and `/fin_lab/examples/` using `ls` and `semantic_memory_retrieve` to understand library usage.
 2. Reflect on the task and plan an approach.
-3. Retrieve prior knowledge using `episodic_memory_retrieve` to apply learnings.
-4. Write and execute Python code using `write_file` and `session_code_executor`.
+3. Retrieve prior knowledge using `episodic_memory_retrieve` then `episodic_memory_lookup`(if applicable) to apply learnings.
+4. Write and execute Python code using `write_file` to \code and `session_code_executor` for code execution.
 5. Observe outputs:
 
    * If an error occurs, fix automatically and retry up to **3 times**.

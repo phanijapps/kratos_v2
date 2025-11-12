@@ -3,7 +3,7 @@ from deepagents.graph import SubAgent
 
 from kratos.subagents.prompts import NUM_NERD, THINKER, REPORTER
 from kratos.tools import SESSION_CODE_EXECUTOR, search_news, search_web
-from kratos.tools.memory import semantic_memory_ingest, semantic_memory_retrieve, episodic_memory_ingest, episodic_memory_retrieve
+from kratos.tools.memory import semantic_memory_ingest, semantic_memory_retrieve, episodic_memory_ingest, episodic_memory_retrieve, semantic_memory_lookup, episodic_memory_lookup
 
 
 SUBAGENTS = [
@@ -11,7 +11,7 @@ SUBAGENTS = [
         "name": "Nerd",
         "description": "A highly intelligent subagent who excels at complex problem-solving and analytical thinking using python code.",
         "prompt": NUM_NERD,
-        "tools": [SESSION_CODE_EXECUTOR, semantic_memory_retrieve, episodic_memory_retrieve, episodic_memory_ingest],
+        "tools": [SESSION_CODE_EXECUTOR, semantic_memory_retrieve, episodic_memory_retrieve, semantic_memory_ingest, episodic_memory_ingest, semantic_memory_lookup, episodic_memory_lookup],
         "output_format": {
             "type": "flexible",
             "options": [
@@ -70,7 +70,7 @@ SUBAGENTS = [
         "name": "Reporter",
         "description": "A detail-oriented subagent who specializes in gathering information, summarizing data, and generating comprehensive reports using all available tools and the output of other subagents.",
         "prompt": REPORTER,
-        "tools": [episodic_memory_retrieve, episodic_memory_ingest],
+        "tools": [episodic_memory_retrieve, episodic_memory_ingest, episodic_memory_lookup],
         "output_format": {
             "type": "rigid",
             "options": [

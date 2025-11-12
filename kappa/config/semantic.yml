@@ -1,26 +1,31 @@
 retrieve_doc: |
-  Use 'semantic_retrieve' to find the right tool for a job. 
-  It searches all API documentation for a match to your natural language query.
+  Use 'semantic_retrieve' to find the right tool or API endpoint for a job. 
+  It searches all API documentation, code patterns, and indicators.
   Example Query: "What tool do I use to get the P/E ratio?"
+  Example Query: "How do I calculate RSI?"
   
 ingestion_doc: |
   Use 'semantic_ingest' to populate this memory. 
   This is usually done by a one-time setup script.
 
   Ingestor: "api_doc"
-  Usage: This payload ingests a single API endpoint. It links an 'endpoint' to its 'section'.
-  Payload Example:
+  Usage: Ingests an API endpoint. Can also be used to ingest a 'virtual'
+         endpoint (like a specific indicator) and link it to the 'parent_tool'
+         that actually provides it.
+  Payload Example (Standard Endpoint):
     payload = {
-        "section": {
-            "name": "fundamentals",
-            "description": "Company fundamentals, financial statements..."
+        "section": { "name": "fundamentals", ... },
+        "endpoint": { "name": "get_fundamentals", ... }
+    }
+  Payload Example (Virtual Indicator):
+    payload = {
+        "section": { "name": "technical", ... },
+        "endpoint": { 
+            "name": "RSI",
+            "description": "Calculates Relative Strength Index (RSI).",
+            "signature": "technical_analysis(symbol, indicators=['RSI'])"
         },
-        "endpoint": {
-            "name": "get_fundamentals",
-            "description": "Return combined overview, statements...",
-            "signature": "get_fundamentals(symbol: str, ...)",
-            "returns": "Dictionary combining overview, statements..."
-        }
+        "parent_tool": "technical_analysis"
     }
 
 namespace: semantic
@@ -55,6 +60,12 @@ ingestors:
             signature: endpoint.signature
             returns: endpoint.returns
       edges:
+        # Edge 1: Links the section to the endpoint (e.g., 'technical' -> 'RSI')
         - source: section
           target: endpoint
           label: HAS_ENDPOINT
+        # Edge 2: Links the parent tool to the virtual endpoint it implements
+        # (e.g., 'technical_analysis' -> 'RSI')
+        - source_key: parent_tool
+          target: endpoint
+          label: IMPLEMENTS

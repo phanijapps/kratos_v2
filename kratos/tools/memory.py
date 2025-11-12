@@ -21,8 +21,11 @@ episodic_mem = MemKappa(
 )
 
 
+
 semantic_memory_retrieve = semantic_mem.get_tool("retrieve", name="semantic_memory_retrieve")
 semantic_memory_ingest = semantic_mem.get_tool("ingest", name="semantic_memory_ingest")
+semantic_memory_lookup = semantic_mem.get_tool("lookup_node", name="semantic_memory_lookup")
 
 episodic_memory_retrieve = episodic_mem.get_tool("retrieve", name="episodic_memory_retrieve")
 episodic_memory_ingest = episodic_mem.get_tool("ingest", name="episodic_memory_ingest")
+episodic_memory_lookup = episodic_mem.get_tool("lookup_node", name="episodic_memory_lookup")

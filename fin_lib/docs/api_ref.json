@@ -1,0 +1,586 @@
+{
+  "generated_at": "2025-11-09T00:00:00Z",
+  "sections": [
+    {
+      "name": "base",
+      "description": "Core stock-market utilities for quotes, historical data, and symbol search.",
+      "endpoints": [
+        {
+          "name": "get_quote",
+          "signature": "get_quote(symbol: str) -> Dict[str, Any]",
+          "description": "Fetch a real-time fast-info snapshot plus the most recent completed OHLC bar...",
+          "parameters": [
+            { "name": "symbol", "type": "str", "description": "Ticker symbol (e.g., 'AAPL', 'TTD')." }
+          ],
+          "returns": "Dictionary containing 'quote' metadata fields and a one-row 'data' array with the latest OHLC values."
+        },
+        {
+          "name": "get_historical_data",
+          "signature": "get_historical_data(symbol, period='1y', interval='1d', ...)",
+          "description": "Download normalized OHLCV history for any ticker...",
+          "parameters": [
+            { "name": "symbol", "type": "str", "description": "Ticker symbol." },
+            { "name": "period", "type": "str | None", "description": "Preset period (1d, 5d, 1mo, 6mo, 1y, ytd, max, etc.)." }
+          ],
+          "returns": "Dictionary with metadata (interval/period) and serialized pandas DataFrame rows in 'data'."
+        },
+        {
+          "name": "get_bulk_quotes",
+          "signature": "get_bulk_quotes(symbols: Iterable[str]) -> Dict[str, Any]",
+          "description": "Batch version of get_quote that accepts dozens of tickers...",
+          "parameters": [
+            { "name": "symbols", "type": "Iterable[str]", "description": "List of ticker symbols." }
+          ],
+          "returns": "Dictionary with 'quotes' list, one entry per ticker."
+        },
+        {
+          "name": "search_symbols",
+          "signature": "search_symbols(keywords: str, region='US', quotes_count=10) -> Dict[str, Any]",
+          "description": "Structured wrapper around Yahoo's symbol search...",
+          "parameters": [
+            { "name": "keywords", "type": "str", "description": "Query text (company name, ticker, etc.)." }
+          ],
+          "returns": "Dictionary containing the original query/region plus either 'results' or an error payload."
+        }
+      ]
+    },
+    {
+      "name": "crypto",
+      "description": "Endpoints for cryptocurrency quotes and analytics.",
+      "endpoints": [
+        {
+          "name": "get_crypto_price",
+          "signature": "get_crypto_price(symbol: str, include_chart: bool = False) -> Dict[str, Any]",
+          "description": "Return the latest fast-info snapshot for a crypto pair...",
+          "parameters": [
+            { "name": "symbol", "type": "str", "description": "Crypto ticker (e.g., 'BTC-USD')." }
+          ],
+          "returns": "Dictionary with 'quote' and up to 5 days of 'recent' OHLCV data."
+        }
+      ]
+    },
+    {
+      "name": "commodities",
+      "description": "Endpoints for commodity quotes and related analytics.",
+      "endpoints": [
+        {
+          "name": "get_commodity_price",
+          "signature": "get_commodity_price(symbol: str, include_chart: bool = False) -> Dict[str, Any]",
+          "description": "Provide headline quote details for liquid commodities...",
+          "parameters": [
+            { "name": "symbol", "type": "str", "description": "Commodity ticker (e.g., 'GC=F', 'CL=F')." }
+          ],
+          "returns": "Dictionary with 'quote' (fast-info fields) and 'recent' OHLC rows."
+        }
+      ]
+    },
+    {
+      "name": "technical",
+      "description": "Technical indicator calculations and charting utilities. Includes all common indicators (RSI, MACD, SMA, etc.) implemented by the 'technical_analysis' tool.",
+      "endpoints": [
+        {
+          "name": "technical_analysis",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] | None = None, period: str = \"1y\", interval: str = \"1d\", ...)",
+          "description": "Compute a full technical-analysis bundle over the requested window. This is the parent tool that implements all individual indicators.",
+          "parameters": [
+            { "name": "symbol", "type": "str", "description": "Ticker symbol." },
+            { "name": "indicators", "type": "List[str] | None", "description": "List of indicators (e.g., ['RSI', 'MACD'])." }
+          ],
+          "returns": "Dictionary containing indicator outputs under the \"indicators\" key."
+        },
+        {
+          "name": "SMA",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['SMA'], ...)",
+          "description": "Calculates the Simple Moving Average (SMA). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing SMA indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "EMA",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['EMA'], ...)",
+          "description": "Calculates the Exponential Moving Average (EMA). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing EMA indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "WMA",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['WMA'], ...)",
+          "description": "Calculates the Weighted Moving Average (WMA). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing WMA indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "DEMA",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['DEMA'], ...)",
+          "description": "Calculates the Double Exponential Moving Average (DEMA). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing DEMA indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "TEMA",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['TEMA'], ...)",
+          "description": "Calculates the Triple Exponential Moving Average (TEMA). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing TEMA indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "TRIMA",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['TRIMA'], ...)",
+          "description": "Calculates the Triangular Moving Average (TRIMA). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing TRIMA indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "KAMA",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['KAMA'], ...)",
+          "description": "Calculates the Kaufman Adaptive Moving Average (KAMA). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing KAMA indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "MAMA",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['MAMA'], ...)",
+          "description": "Calculates the MESA Adaptive Moving Average (MAMA). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing MAMA indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "VWAP",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['VWAP'], ...)",
+          "description": "Calculates the Volume Weighted Average Price (VWAP). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing VWAP indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "T3",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['T3'], ...)",
+          "description": "Calculates the T3 Moving Average. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing T3 indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "MACD",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['MACD'], ...)",
+          "description": "Calculates Moving Average Convergence Divergence (MACD). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing MACD indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "MACDEXT",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['MACDEXT'], ...)",
+          "description": "Calculates MACD with controllable MA type. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing MACDEXT indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "STOCH",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['STOCH'], ...)",
+          "description": "Calculates Stochastic Oscillator (STOCH). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing STOCH indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "STOCHF",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['STOCHF'], ...)",
+          "description": "Calculates Stochastic Fast (STOCHF). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing STOCHF indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "RSI",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['RSI'], ...)",
+          "description": "Calculates Relative Strength Index (RSI). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing RSI indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "STOCHRSI",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['STOCHRSI'], ...)",
+          "description": "Calculates Stochastic RSI (STOCHRSI). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing STOCHRSI indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "WILLR",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['WILLR'], ...)",
+          "description": "Calculates Williams' %R (WILLR). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing WILLR indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "ADX",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['ADX'], ...)",
+          "description": "Calculates Average Directional Movement Index (ADX). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing ADX indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "ADXR",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['ADXR'], ...)",
+          "description": "Calculates Average Directional Movement Index Rating (ADXR). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing ADXR indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "APO",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['APO'], ...)",
+          "description": "Calculates Absolute Price Oscillator (APO). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing APO indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "PPO",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['PPO'], ...)",
+          "description": "Calculates Percentage Price Oscillator (PPO). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing PPO indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "MOM",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['MOM'], ...)",
+          "description": "Calculates Momentum (MOM). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing MOM indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "BOP",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['BOP'], ...)",
+          "description": "Calculates Balance of Power (BOP). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing BOP indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "CCI",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['CCI'], ...)",
+          "description": "Calculates Commodity Channel Index (CCI). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing CCI indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "CMO",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['CMO'], ...)",
+          "description": "Calculates Chande Momentum Oscillator (CMO). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing CMO indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "ROC",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['ROC'], ...)",
+          "description": "Calculates Rate of Change (ROC). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing ROC indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "ROCR",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['ROCR'], ...)",
+          "description": "Calculates Rate of Change Ratio (ROCR). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing ROCR indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "AROON",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['AROON'], ...)",
+          "description": "Calculates Aroon. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing AROON indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "AROONOSC",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['AROONOSC'], ...)",
+          "description": "Calculates Aroon Oscillator (AROONOSC). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing AROONOSC indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "MFI",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['MFI'], ...)",
+          "description": "Calculates Money Flow Index (MFI). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing MFI indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "TRIX",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['TRIX'], ...)",
+          "description": "Calculates 1-day Rate of Change (ROC) of a TEMA (TRIX). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing TRIX indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "ULTOSC",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['ULTOSC'], ...)",
+          "description": "Calculates Ultimate Oscillator (ULTOSC). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing ULTOSC indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "DX",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['DX'], ...)",
+          "description": "Calculates Directional Movement Index (DX). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing DX indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "MINUS_DI",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['MINUS_DI'], ...)",
+          "description": "Calculates Minus Directional Indicator (MINUS_DI). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing MINUS_DI indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "PLUS_DI",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['PLUS_DI'], ...)",
+          "description": "Calculates Plus Directional Indicator (PLUS_DI). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing PLUS_DI indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "MINUS_DM",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['MINUS_DM'], ...)",
+          "description": "Calculates Minus Directional Movement (MINUS_DM). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing MINUS_DM indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "PLUS_DM",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['PLUS_DM'], ...)",
+          "description": "Calculates Plus Directional Movement (PLUS_DM). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing PLUS_DM indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "BBANDS",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['BBANDS'], ...)",
+          "description": "Calculates Bollinger Bands (BBANDS). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing BBANDS indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "MIDPOINT",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['MIDPOINT'], ...)",
+          "description": "Calculates MidPoint over period. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing MIDPOINT indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "MIDPRICE",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['MIDPRICE'], ...)",
+          "description": "Calculates Midpoint Price over period. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing MIDPRICE indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "SAR",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['SAR'], ...)",
+          "description": "Calculates Parabolic SAR. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing SAR indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "TRANGE",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['TRANGE'], ...)",
+          "description": "Calculates True Range (TRANGE). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing TRANGE indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "ATR",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['ATR'], ...)",
+          "description": "Calculates Average True Range (ATR). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing ATR indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "NATR",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['NATR'], ...)",
+          "description": "Calculates Normalized Average True Range (NATR). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing NATR indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "AD",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['AD'], ...)",
+          "description": "Calculates Chaikin A/D Line (AD). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing AD indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "ADOSC",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['ADOSC'], ...)",
+          "description": "Calculates Chaikin A/D Oscillator (ADOSC). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing ADOSC indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "OBV",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['OBV'], ...)",
+          "description": "Calculates On Balance Volume (OBV). Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing OBV indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "HT_TRENDLINE",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['HT_TRENDLINE'], ...)",
+          "description": "Calculates Hilbert Transform - Instantaneous Trendline. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing HT_TRENDLINE indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "HT_SINE",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['HT_SINE'], ...)",
+          "description": "Calculates Hilbert Transform - SineWave. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing HT_SINE indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "HT_TRENDMODE",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['HT_TRENDMODE'], ...)",
+          "description": "Calculates Hilbert Transform - Trend vs Cycle Mode. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing HT_TRENDMODE indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "HT_DCPERIOD",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['HT_DCPERIOD'], ...)",
+          "description": "Calculates Hilbert Transform - Dominant Cycle Period. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing HT_DCPERIOD indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "HT_DCPHASE",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['HT_DCPHASE'], ...)",
+          "description": "Calculates Hilbert Transform - Dominant Cycle Phase. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing HT_DCPHASE indicator data.",
+          "parent_tool": "technical_analysis"
+        },
+        {
+          "name": "HT_PHASOR",
+          "signature": "technical_analysis(symbol: str, indicators: List[str] = ['HT_PHASOR'], ...)",
+          "description": "Calculates Hilbert Transform - Phasor Components. Virtual endpoint for the 'technical_analysis' tool.",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary containing HT_PHASOR indicator data.",
+          "parent_tool": "technical_analysis"
+        }
+      ]
+    },
+    {
+      "name": "fundamentals",
+      "description": "Company fundamentals, financial statements, key metrics, and valuation data.",
+      "endpoints": [
+        {
+          "name": "get_company_overview",
+          "signature": "get_company_overview(symbol: str) -> Dict[str, Any]",
+          "description": "Pull the company profile overlay...",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary with company overview metadata."
+        },
+        {
+          "name": "get_fundamentals",
+          "signature": "get_fundamentals(symbol: str, ...)",
+          "description": "Return a consolidated fundamentals pack...",
+          "parameters": [ { "name": "symbol", "type": "str", "description": "Ticker symbol." } ],
+          "returns": "Dictionary combining overview, statements, ratios, and optionally a chart."
+        }
+      ]
+    },
+    {
+      "name": "options",
+      "description": "Options chain retrieval, implied volatility analytics, and volume tools.",
+      "endpoints": [
+        {
+          "name": "get_options_chain",
+          "signature": "get_options_chain(symbol: str, expiration: str | None = None, ...)",
+          "description": "Retrieve the full calls/puts chain for a given expiration...",
+          "parameters": [
+            { "name": "symbol", "type": "str", "description": "Underlying ticker." }
+          ],
+          "returns": "Dictionary with expiration metadata, available expirations, and serialized calls/puts tables."
+        },
+        {
+          "name": "get_implied_volatility",
+          "signature": "get_implied_volatility(symbol: str, expiration: str | None = None, ...)",
+          "description": "Build a summarized implied-volatility view for one expiration...",
+          "parameters": [
+            { "name": "symbol", "type": "str", "description": "Underlying ticker." }
+          ],
+          "returns": "Dictionary with average call/put implied volatility and arrays of per-strike IV values."
+        }
+      ]
+    },
+    {
+      "name": "economics",
+      "description": "Macro indicators, treasury rates, and market sentiment utilities.",
+      "endpoints": [
+        {
+          "name": "get_treasury_rates",
+          "signature": "get_treasury_rates(include_chart: bool = False, ...)",
+          "description": "Return the latest Treasury yields for standard maturities...",
+          "parameters": [
+            { "name": "include_chart", "type": "bool", "description": "Include yield curve chart." }
+          ],
+          "returns": "Dictionary with per-maturity rates, plus optional chart."
+        },
+        {
+          "name": "get_market_sentiment",
+          "signature": "get_market_sentiment(include_chart: bool = False, ...)",
+          "description": "Fetch a consolidated view of volatility-based gauges (VIX, VXN, RVX, SKEW, etc.)...",
+          "parameters": [
+            { "name": "include_chart", "type": "bool", "description": "Include comparison chart." }
+          ],
+          "returns": "Dictionary containing sentiment metric values and descriptions."
+        }
+      ]
+    }
+  ]
+}

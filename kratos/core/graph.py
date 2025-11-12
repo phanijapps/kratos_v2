@@ -100,9 +100,7 @@ def create_deep_agent(
 
     deepagent_middleware = [
         TodoListMiddleware(),
-        #FilesystemMiddleware(
-         #   long_term_memory=use_longterm_memory,
-        #),
+
         ContextVaultMiddleware(
             workspace_dir="./.vault",
             default_namespace="finance",
@@ -131,13 +129,13 @@ def create_deep_agent(
                 SummarizationMiddleware(
                     model=model,
                     max_tokens_before_summary=100000,
-                    messages_to_keep=2,
+                    messages_to_keep=5,
                 ),
                 AnthropicPromptCachingMiddleware(unsupported_model_behavior="ignore"),
                 PatchToolCallsMiddleware(),
             ],
             default_interrupt_on=interrupt_on,
-            general_purpose_agent=True,
+            general_purpose_agent=False,
         ),
         SummarizationMiddleware(
             model=model,
