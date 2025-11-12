@@ -24,7 +24,8 @@ def get_fin_graph():
     """
     Factory function that builds and returns the financial deep agent graph.
     """
-    model = LLMFactory.get_llm_model(model_provider=ModelProvider.OPENROUTER, model_name="anthropic/claude-sonnet-4.5")
+    model = LLMFactory.get_llm_model(model_provider=ModelProvider.DEEPSEEK)
+    #LLMFactory.get_llm_model(model_provider=ModelProvider.OPENROUTER, model_name="google/gemini-2.5-flash-preview-09-2025")
     #LLMFactory.get_llm_model(model_provider=ModelProvider.OPENROUTER, model_name="openai/gpt-5-mini")
     #LLMFactory.get_llm_model(model_provider=ModelProvider.DEEPSEEK)
     #

@@ -384,16 +384,19 @@ class FileVault:
     ) -> Path:
         """Resolve where file should be stored on disk"""
         file_path = file_path.lstrip("/")
-        
+        namespace = namespace or "default"
 
         if is_shared:
-            storage_path = Path(self.persistent_dir / file_path)
-        elif session_id:
-            storage_path = Path(self.sessions_dir / session_id / file_path)
+            session_id = session_id or "shared"
+
+        if session_id:
+            storage_path = self.sessions_dir / session_id / file_path
+        else:
+            storage_path = self.persistent_dir / namespace / file_path
 
         logger.info(f"Storage path {storage_path} is_shared={is_shared}")
 
-        return storage_path.as_posix()
+        return storage_path
     
     
     def get_storage_dir_path(

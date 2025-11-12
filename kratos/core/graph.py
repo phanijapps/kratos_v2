@@ -139,7 +139,7 @@ def create_deep_agent(
         ),
         SummarizationMiddleware(
             model=model,
-            max_tokens_before_summary=170000,
+            max_tokens_before_summary=100000,
             messages_to_keep=6,
         ),
         AnthropicPromptCachingMiddleware(unsupported_model_behavior="ignore"),
