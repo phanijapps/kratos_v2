@@ -65,3 +65,5 @@ langchain.db
 
 .yfinance_cache/
 .langgraph_api/
+
+.gradio/
