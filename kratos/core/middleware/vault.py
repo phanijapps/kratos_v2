@@ -18,11 +18,25 @@ import sqlite3
 from pathlib import Path
 from anyio import Path as AsyncPath
 from datetime import datetime
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, TypedDict
 import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+class FileRecord(TypedDict, total=False):
+    """Typed metadata structure for manual file upserts."""
+
+    file_path: str
+    storage_path: str
+    session_id: Optional[str]
+    namespace: Optional[str]
+    mime_type: Optional[str]
+    summary: Optional[str]
+    size_bytes: Optional[int]
+    content_hash: Optional[str]
+    tags: Optional[List[str]]
 
 
 class FileVault:
@@ -122,7 +136,7 @@ class FileVault:
                 file_count INTEGER DEFAULT 0,
                 total_bytes INTEGER DEFAULT 0,
                 ticker TEXT,
-                purpose TEXT,
+                summary TEXT,
                 status TEXT DEFAULT 'active'
             )
         """)
@@ -275,6 +289,25 @@ class FileVault:
         
         conn.commit()
         conn.close()
+
+    def _refresh_session_stats(self, cursor: sqlite3.Cursor, session_id: str, namespace: str):
+        """Recalculate file_count/total_bytes for a session and bump activity timestamp."""
+        cursor.execute(
+            """
+            INSERT INTO sessions (session_id, namespace, file_count, total_bytes)
+            VALUES (
+                ?, ?,
+                (SELECT COUNT(*) FROM files WHERE session_id = ?),
+                (SELECT COALESCE(SUM(size_bytes), 0) FROM files WHERE session_id = ?)
+            )
+            ON CONFLICT(session_id) DO UPDATE SET
+                namespace = COALESCE(excluded.namespace, sessions.namespace),
+                file_count = excluded.file_count,
+                total_bytes = excluded.total_bytes,
+                last_accessed = CURRENT_TIMESTAMP
+            """,
+            (session_id, namespace, session_id, session_id),
+        )
     
     # ============================================================================
     # JSON BACKEND (Simple, for development)
@@ -481,6 +514,197 @@ class FileVault:
         """Generate unique file ID"""
         key = f"{namespace}:{session_id or 'persistent'}:{file_path}"
         return hashlib.sha256(key.encode()).hexdigest()[:16]
+
+    def update_session(
+        self,
+        ticker: Optional[str],
+        summary: Optional[str],
+        session_id: str,
+        status: str
+    ) -> None:
+        """
+        Update session metadata and ensure last_accessed stays current.
+        """
+        if not session_id:
+            raise ValueError("session_id is required to update session metadata.")
+
+        now = datetime.utcnow().isoformat()
+
+        if self.use_sqlite:
+            conn = self._get_sqlite_connection()
+            cursor = conn.cursor()
+
+            update_parts = []
+            params: List[Any] = []
+
+            if ticker is not None:
+                update_parts.append("ticker = ?")
+                params.append(ticker)
+
+            if summary is not None:
+                update_parts.append("summary = ?")
+                params.append(summary)
+
+            update_parts.append("status = ?")
+            params.append(status)
+            update_parts.append("last_accessed = CURRENT_TIMESTAMP")
+
+            update_sql = f"UPDATE sessions SET {', '.join(update_parts)} WHERE session_id = ?"
+            params.append(session_id)
+            cursor.execute(update_sql, params)
+
+            if cursor.rowcount == 0:
+                cursor.execute(
+                    "SELECT namespace FROM files WHERE session_id = ? LIMIT 1",
+                    (session_id,),
+                )
+                ns_row = cursor.fetchone()
+                namespace = ns_row["namespace"] if ns_row else "default"
+                cursor.execute(
+                    """
+                    INSERT INTO sessions (session_id, namespace, ticker, summary, status, last_accessed)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (session_id, namespace, ticker, summary, status, now),
+                )
+
+            conn.commit()
+            conn.close()
+        else:
+            session_data = self.session_stats.setdefault(
+                session_id,
+                {
+                    "session_id": session_id,
+                    "namespace": "default",
+                    "file_count": 0,
+                    "total_bytes": 0,
+                },
+            )
+
+            if ticker is not None:
+                session_data["ticker"] = ticker
+            if summary is not None:
+                session_data["summary"] = summary
+            session_data["status"] = status
+            session_data["last_accessed"] = now
+
+    def upsert_filesin_db(self, files: List[FileRecord]) -> int:
+        """
+        Upsert a batch of file metadata entries directly into the SQLite backend.
+        """
+        if not self.use_sqlite:
+            raise RuntimeError("upsert_filesin_db requires the SQLite backend.")
+
+        if not files:
+            return 0
+
+        conn = self._get_sqlite_connection()
+        cursor = conn.cursor()
+        upserted = 0
+        touched_sessions: Dict[str, str] = {}
+
+        try:
+            for record in files:
+                if "file_path" not in record or "storage_path" not in record:
+                    raise ValueError("Each record requires file_path and storage_path.")
+
+                file_path = self._validate_path(record["file_path"])
+                namespace = record.get("namespace") or "default"
+                session_id = record.get("session_id") or None
+                storage_path_obj = Path(record["storage_path"])
+                resolved_storage_path = storage_path_obj.resolve()
+                storage_path = str(resolved_storage_path)
+
+                mime_type = record.get("mime_type")
+                summary = record.get("summary")
+
+                size_bytes = record.get("size_bytes")
+                if size_bytes is None:
+                    try:
+                        size_bytes = resolved_storage_path.stat().st_size
+                    except FileNotFoundError:
+                        size_bytes = 0
+                content_hash = record.get("content_hash")
+                tags = record.get("tags")
+                tags_json = json.dumps(tags) if tags is not None else None
+
+                now = datetime.utcnow().isoformat()
+
+                cursor.execute(
+                    """
+                    SELECT file_id FROM files
+                    WHERE file_path = ? AND namespace = ?
+                        AND (
+                            (session_id IS NULL AND ? IS NULL) OR session_id = ?
+                        )
+                    """,
+                    (file_path, namespace, session_id, session_id),
+                )
+                existing = cursor.fetchone()
+
+                if existing:
+                    file_id = existing["file_id"]
+                    cursor.execute(
+                        """
+                        UPDATE files
+                        SET file_path = ?, namespace = ?, session_id = ?, storage_path = ?,
+                            content_hash = ?, size_bytes = ?, mime_type = ?, tags = ?, summary = ?,
+                            modified_at = ?
+                        WHERE file_id = ?
+                        """,
+                        (
+                            file_path,
+                            namespace,
+                            session_id,
+                            storage_path,
+                            content_hash,
+                            size_bytes,
+                            mime_type,
+                            tags_json,
+                            summary,
+                            now,
+                            file_id,
+                        ),
+                    )
+                else:
+                    cursor.execute(
+                        """
+                        INSERT INTO files (
+                            file_id, file_path, namespace, session_id, storage_path,
+                            content_hash, size_bytes, mime_type, tags, summary,
+                            created_at, modified_at, accessed_at, access_count
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+                        """,
+                        (
+                            self._generate_file_id(file_path, namespace, session_id),
+                            file_path,
+                            namespace,
+                            session_id,
+                            storage_path,
+                            content_hash,
+                            size_bytes,
+                            mime_type,
+                            tags_json,
+                            summary,
+                            now,
+                            now,
+                            now,
+                        ),
+                    )
+
+                if session_id:
+                    touched_sessions[session_id] = namespace
+
+                upserted += 1
+
+            for session_id, namespace in touched_sessions.items():
+                self._refresh_session_stats(cursor, session_id, namespace)
+
+            conn.commit()
+            return upserted
+        finally:
+            conn.close()
     
     def write_file(
         self,

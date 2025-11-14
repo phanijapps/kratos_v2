@@ -162,6 +162,14 @@ You have access to **FileVault**, a powerful filesystem for managing files acros
   - Set `replace_all=True` to replace all occurrences
   - Safer than rewriting entire files
 
+**🗂️ update_session_metadata(ticker=None, summary=None, status="active")** - Refresh session info
+  - Updates high-level session attributes stored in FileVault
+  - Defaults to the active session if `session_id` is not provided
+
+**🗃️ upsert_files_metadata(files=[...])** - Bulk register files
+  - Accepts file descriptors with `file_path`, `storage_path`, optional session/session namespace details
+  - Useful for recording artifacts generated outside of FileVault helpers
+
 **📊 get_session_summary()** - View session files
   - Shows all files created in current session
   - Breaks down by directory
@@ -430,31 +438,7 @@ If a file isn't found:
                 logger.error(f"Error resolving workspace directory: {e}")
                 return format_error("PWD Error", str(e))
             
-        #@tool
-        def get_vault_location(
-            asset_type: Literal["code","tool_results","reports","charts"],
-            runtime: Annotated[Optional[Any], InjectedToolArg()] = None 
-        ) -> str:
-            """
-            Gets absolute directory path for different types of assets. reports, code, charts, tool_results etc.
 
-            Args:
-                asset_type: Type of asset (code for python files, tool_results for saved large tool results, charts, for generated charts, reports for generated reports)
-            
-            Returns:
-                Message with Absolute File Path
-            """
-            try:
-                if runtime and hasattr(runtime, 'state'):
-                    namespace, session_id = get_state(runtime.state)
-                else:
-                    namespace, session_id = "default", None
-
-                location = vault.get_storage_dir_path(asset_type=asset_type, namespace=namespace, session_id=session_id)
-                print(f"Location is {location}")
-                return location
-            except Exception as ex:
-                return f"Error fetching location for get vault session for asset {asset_type}"
         
         @tool
         def write_file(
@@ -557,6 +541,100 @@ If a file isn't found:
             except Exception as e:
                 logger.error(f"Error editing file: {e}")
                 return format_error("Edit Error", str(e))
+
+        @tool
+        def update_session_metadata(
+            ticker: Optional[str] = None,
+            summary: Optional[str] = None,
+            session_id: Optional[str] = None,
+            status: str = "active",
+            runtime: Annotated[Optional[Any], InjectedToolArg()] = None
+        ) -> str:
+            """
+            Update the current session record (ticker, summary, status).
+
+            Args:
+                ticker: Optional ticker symbol associated with the session.
+                summary: Optional textual summary for the session.
+                session_id: Override session id (defaults to active session).
+                status: Session status flag (defaults to 'active').
+            """
+            try:
+                effective_session_id = session_id
+                if not effective_session_id:
+                    if runtime and hasattr(runtime, "state"):
+                        _, state_session_id = get_state(runtime.state)
+                        effective_session_id = state_session_id
+
+                if not effective_session_id:
+                    return format_error(
+                        "Session Update Error",
+                        "No session_id provided and no active session found.",
+                        "Start a session or pass session_id explicitly.",
+                    )
+
+                vault.update_session(
+                    ticker=ticker,
+                    summary=summary,
+                    session_id=effective_session_id,
+                    status=status,
+                )
+
+                details = []
+                if ticker is not None:
+                    details.append(f"ticker='{ticker}'")
+                if summary is not None:
+                    details.append("summary updated")
+                details.append(f"status='{status}'")
+                detail_str = ", ".join(details)
+
+                if format_out:
+                    return (
+                        f"🗂️ Session '{effective_session_id}' updated "
+                        f"({detail_str})."
+                    )
+                return f"Session '{effective_session_id}' updated ({detail_str})."
+
+            except Exception as e:
+                logger.error(f"Error updating session metadata: {e}")
+                return format_error("Session Update Error", str(e))
+
+        @tool
+        def upsert_files_metadata(
+            files: List[Dict[str, Any]],
+            runtime: Annotated[Optional[Any], InjectedToolArg()] = None
+        ) -> str:
+            """
+            Upsert file metadata entries directly into FileVault.
+
+            Args:
+                files: List of dictionaries with file_path, storage_path, and session_id,
+                       namespace, mime_type, summary, tags, etc.
+            """
+            try:
+                if not files:
+                    return format_error(
+                        "Upsert Error",
+                        "Provide at least one file record.",
+                        "Pass a list of file descriptors with file_path and storage_path.",
+                    )
+
+                inserted = vault.upsert_filesin_db(files)
+
+                if format_out:
+                    return f"🗃️ Upserted {inserted} file record(s) into FileVault."
+                return f"Upserted {inserted} file record(s)."
+
+            except RuntimeError as e:
+                # Likely JSON backend or SQLite disabled.
+                return format_error(
+                    "Upsert Error",
+                    str(e),
+                    "Enable the SQLite backend when constructing FileVault.",
+                )
+            except Exception as e:
+                logger.error(f"Error upserting files: {e}")
+                return format_error("Upsert Error", str(e))
         
         @tool
         def get_session_summary(
@@ -835,7 +913,18 @@ If a file isn't found:
             except Exception as e:
                 return format_error("Grep Search Error", str(e))
         
-        tools = [ls, read_file, pwd, write_file, edit_file, get_session_summary, glob_search, grep_search]
+        tools = [
+            ls,
+            read_file,
+            pwd,
+            write_file,
+            edit_file,
+            update_session_metadata,
+            upsert_files_metadata,
+            get_session_summary,
+            glob_search,
+            grep_search,
+        ]
         return tools
     
     async def abefore_agent(self, state: AgentState, runtime: Any) -> Optional[Dict[str, Any]]:
