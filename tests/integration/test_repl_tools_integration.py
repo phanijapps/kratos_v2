@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from kratos.core.middleware.vault_middleware import ContextVaultMiddleware
+from kratos.core.util.vault_middleware import ContextVaultMiddleware
 from kratos.tools.repl_tools import SESSION_CODE_EXECUTOR
 
 

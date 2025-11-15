@@ -1,7 +1,7 @@
 import asyncio
 from types import SimpleNamespace
 
-from kratos.core.middleware.vault_middleware import ContextVaultMiddleware
+from kratos.core.util.vault_middleware import ContextVaultMiddleware
 
 
 class DummyRuntime:

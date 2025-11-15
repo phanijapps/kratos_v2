@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from kratos.core.middleware.vault import FileVault
+from kratos.core.util.vault import FileVault
 
 
 def test_write_file_creates_session_file_and_metadata(tmp_path):

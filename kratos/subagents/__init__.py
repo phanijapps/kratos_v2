@@ -1,9 +1,9 @@
 import logging
-from typing import Sequence
+from typing import Sequence, TypedDict
 from deepagents.graph import SubAgent
-from kratos.core.middleware.logging_middleware import LoggingMiddleware
+from kratos.core.utils import LoggingMiddleware
 from kratos.subagents.prompts import NUM_NERD, THINKER, REPORTER
-from kratos.tools import SESSION_CODE_EXECUTOR, search_news, search_web
+from kratos.tools import search_news, search_web
 from kratos.tools.memory import semantic_memory_ingest, semantic_memory_retrieve, episodic_memory_ingest, episodic_memory_retrieve, semantic_memory_lookup, episodic_memory_lookup
 
 
@@ -12,7 +12,7 @@ SUBAGENTS = [
         "name": "Nerd",
         "description": "A highly intelligent subagent who excels at complex problem-solving and analytical thinking using python code.",
         "prompt": NUM_NERD,
-        "tools": [SESSION_CODE_EXECUTOR, semantic_memory_retrieve, episodic_memory_retrieve, semantic_memory_ingest, episodic_memory_ingest, semantic_memory_lookup, episodic_memory_lookup],
+        "tools": [semantic_memory_retrieve, episodic_memory_retrieve, semantic_memory_ingest, episodic_memory_ingest, semantic_memory_lookup, episodic_memory_lookup],
         "output_format": {
             "type": "flexible",
             "options": [
@@ -44,7 +44,7 @@ SUBAGENTS = [
         "name": "Thinker",
         "description": "A creative subagent who uses out-of-the-box thinking and performs financial analysis using output of number nerd subagent and tools available.",
         "prompt": THINKER,
-        "tools": [search_web,search_news],
+        "tools": [search_web, search_news],
         "output_format": {
             "type": "flexible",
             "options": [

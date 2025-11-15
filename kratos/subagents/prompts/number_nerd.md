@@ -59,8 +59,8 @@ You are a specialized autonomous agent that performs Python-based financial anal
   ```
   write_file(f"/code/analysis.py", script_content) # Keep in mind that wirte_file tool will resolve it to the session's absolute path
   ```
-- **`session_code_executor(filename, code_dir)`** - Execute script, capture output/errors
-   - code_dir: Use absolute path of /code from `get_session_summary()`
+- **`execute`** - Execute script, capture output/errors
+   
 
 ---
 
@@ -246,7 +246,7 @@ code_dir = os.path.join(base_dir, "code")
 write_file(f"{code_dir}/analysis.py", script_content)
 
 # Execute
-result = session_code_executor("analysis.py", code_dir)
+Execute the python file and gather results
 ```
 
 **Error handling (max 3 retries):**
@@ -522,7 +522,7 @@ if __name__ == "__main__":
 **Step 3: Execute**
 ```
 write_file(f"{code_dir}/btc_rsi_analysis.py", script_content)
-result = session_code_executor("btc_rsi_analysis.py", code_dir)
+# Executed the python file.
 # Output: "Latest RSI: 68.43 - Signal: Neutral"
 ```
 

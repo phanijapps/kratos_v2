@@ -1,10 +1,9 @@
 """Deepagents come with planning, filesystem, and subagents."""
 
 from collections.abc import Callable, Sequence
-from typing import Any
-
-from langchain.agents import create_agent
-from langchain.agents.middleware import HumanInTheLoopMiddleware, InterruptOnConfig, TodoListMiddleware
+from typing import Any, TypedDict, Optional, Annotated
+from langchain.agents import create_agent, AgentState
+from langchain.agents.middleware import HumanInTheLoopMiddleware, InterruptOnConfig, TodoListMiddleware, before_agent
 from langchain.agents.middleware.summarization import SummarizationMiddleware
 from langchain.agents.middleware.types import AgentMiddleware
 from langchain.agents.structured_output import ResponseFormat
@@ -17,26 +16,15 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.store.base import BaseStore
 from langgraph.types import Checkpointer
 
-from deepagents.middleware.filesystem import FilesystemMiddleware
+from deepagents.backends.protocol import BackendFactory, BackendProtocol
 from deepagents.middleware.patch_tool_calls import PatchToolCallsMiddleware
 from deepagents.middleware.subagents import CompiledSubAgent, SubAgent, SubAgentMiddleware
 
-from kratos.core.middleware.vault_middleware import ContextVaultMiddleware
+from kratos.core.middleware import KratosFilesystemMiddleware, KratosFileBackend
 import time
 
+
 BASE_AGENT_PROMPT = "In order to complete the objective that the user asks of you, you have access to a number of standard tools."
-
-
-def get_default_model() -> ChatAnthropic:
-    """Get the default model for deep agents.
-
-    Returns:
-        ChatAnthropic instance configured with Claude Sonnet 4.
-    """
-    return ChatAnthropic(
-        model_name="claude-sonnet-4-5-20250929",
-        max_tokens=20000,
-    )
 
 
 def create_deep_agent(
@@ -49,8 +37,9 @@ def create_deep_agent(
     response_format: ResponseFormat | None = None,
     context_schema: type[Any] | None = None,
     checkpointer: Checkpointer | None = None,
+    state_schmea: AgentState | None = None,
     store: BaseStore | None = None,
-    use_longterm_memory: bool = False,
+    backend: BackendProtocol | BackendFactory | None = None,
     interrupt_on: dict[str, bool | InterruptOnConfig] | None = None,
     debug: bool = False,
     name: str | None = None,
@@ -82,8 +71,7 @@ def create_deep_agent(
         context_schema: The schema of the deep agent.
         checkpointer: Optional checkpointer for persisting agent state between runs.
         store: Optional store for persisting longterm memories.
-        use_longterm_memory: Whether to use longterm memory - you must provide a store
-            in order to use longterm memory.
+        backend: Backend to store memories
         interrupt_on: Optional Dict[str, bool | InterruptOnConfig] mapping tool names to
             interrupt configs.
         debug: Whether to enable debug mode. Passed through to create_agent.
@@ -94,20 +82,14 @@ def create_deep_agent(
         A configured deep agent.
     """
     if model is None:
-        model = get_default_model()
+        raise ValueError("You must provide a model for the deep agent.")
     
-    session_id = str(time.time() * 1000)
-
     deepagent_middleware = [
+        
         TodoListMiddleware(),
 
-        ContextVaultMiddleware(
-            workspace_dir="./.vault",
-            default_namespace="finance",
-            session_id= session_id,
-            use_sqlite=True,
-            agent_purpose="finance_assistant",
-            enable_logging=True
+        KratosFilesystemMiddleware(
+          backend=backend
         ),
         SubAgentMiddleware(
             default_model=model,
@@ -115,16 +97,9 @@ def create_deep_agent(
             subagents=subagents if subagents is not None else [],
             default_middleware=[
                 TodoListMiddleware(),
-                #FilesystemMiddleware(
-                 #   long_term_memory=use_longterm_memory,
-                #),
-                 ContextVaultMiddleware(
-                    workspace_dir="./.vault",
-                    default_namespace="finance",
-                    session_id= session_id,
-                    use_sqlite=True,
-                    agent_purpose="finance_assistant",
-                    enable_logging=True
+                KratosFilesystemMiddleware(
+
+                    backend=backend
                 ),
                 SummarizationMiddleware(
                     model=model,
@@ -155,8 +130,9 @@ def create_deep_agent(
         system_prompt=system_prompt + "\n\n" + BASE_AGENT_PROMPT if system_prompt else BASE_AGENT_PROMPT,
         tools=tools,
         middleware=deepagent_middleware,
-        response_format=response_format,
         context_schema=context_schema,
+        state_schema=state_schmea,
+        response_format=response_format,
         checkpointer=checkpointer,
         store=store,
         debug=debug,

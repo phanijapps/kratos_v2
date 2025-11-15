@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from kratos.core.middleware.vault import FileVault
+from kratos.core.util.vault import FileVault
 
 
 def test_filevault_write_file_persists_to_correct_paths(tmp_path):

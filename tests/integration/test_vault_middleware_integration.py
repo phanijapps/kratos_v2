@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from kratos.core.middleware.vault_middleware import ContextVaultMiddleware
+from kratos.core.util.vault_middleware import ContextVaultMiddleware
 
 
 class DummyRuntime:
