@@ -17,14 +17,11 @@ from typing import Any, Callable, Optional, List, Dict, Annotated, Literal, Type
 from operator import add
 from collections.abc import Awaitable
 from langchain_core.tools import tool, InjectedToolArg  # ADDED InjectedToolArg
-from langgraph.types import Command
-from langchain_core.messages import ToolMessage
 import logging
 import re
 import fnmatch
 import time
 from pathlib import Path
-import asyncio
 
 # Import FileVault
 from kratos.core.middleware.vault import FileVault
@@ -106,7 +103,6 @@ class ContextVaultMiddleware(AgentMiddleware):
         """
         self.workspace_dir = workspace_dir
         self.default_namespace = default_namespace
-        #self.session_id = session_id
         self.max_file_size_warning = max_file_size_warning
         self.enable_logging = enable_logging
         self.format_outputs = format_outputs
